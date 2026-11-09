@@ -1,0 +1,28 @@
+# ≈ Nike Jenkinsfile-android-feature-dev.groovy
+# Runs P1 smoke on every pull request, 2 shards in parallel.
+name: PR • P1 Smoke
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  smoke:
+    name: P1 Smoke (shard ${{ matrix.shard }}/2)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npx playwright test --grep @P1 --shard=${{ matrix.shard }}/2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: html-report-shard-${{ matrix.shard }}
+          path: reports/html
+          retention-days: 7

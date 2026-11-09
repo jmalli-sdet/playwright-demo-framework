@@ -1,0 +1,31 @@
+{
+  "name": "playwright-demo-framework",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Industry-ready Playwright/TypeScript automation framework — structure mirrors the Nike App Android automation (UITestBase + RuleChain + testSteps/<area>/<Steps|P1|P2>).",
+  "scripts": {
+    "test": "playwright test",
+    "test:p1": "playwright test --grep @P1",
+    "test:p2": "playwright test --grep @P2",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:regression": "playwright test --grep @regression",
+    "test:chromium": "playwright test --project=chromium-en-US",
+    "test:webkit": "playwright test --project=webkit-en-US",
+    "test:mobile": "playwright test --project=mobile-chrome-pixel7",
+    "test:locale:fr": "playwright test --project=chromium-fr-FR",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "codegen": "playwright codegen https://automationexercise.com",
+    "report": "playwright show-report reports/html",
+    "trace": "playwright show-trace",
+    "lint": "eslint 'src/**/*.ts' 'tests/**/*.ts'",
+    "format": "prettier --write 'src/**/*.ts' 'tests/**/*.ts'"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22.10.1",
+    "typescript": "^5.6.3",
+    "dotenv": "^16.4.7",
+    "@faker-js/faker": "^9.3.0"
+  }
+}

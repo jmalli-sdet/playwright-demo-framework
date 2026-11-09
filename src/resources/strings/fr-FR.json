@@ -1,0 +1,16 @@
+{
+  "login": {
+    "headingLogin": "Login to your account",
+    "headingSignup": "New User Signup!",
+    "incorrectCredentialsError": "Your email or password is incorrect!",
+    "emailExistsError": "Email Address already exist!"
+  },
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "cart": "Cart",
+    "signupLogin": "Signup / Login",
+    "logout": "Logout"
+  },
+  "__note": "automationexercise.com is English-only; fr-FR strings fall back to EN. Shown here to prove the localization pattern."
+}

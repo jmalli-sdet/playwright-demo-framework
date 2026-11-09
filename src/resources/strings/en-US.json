@@ -1,0 +1,15 @@
+{
+  "login": {
+    "headingLogin": "Login to your account",
+    "headingSignup": "New User Signup!",
+    "incorrectCredentialsError": "Your email or password is incorrect!",
+    "emailExistsError": "Email Address already exist!"
+  },
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "cart": "Cart",
+    "signupLogin": "Signup / Login",
+    "logout": "Logout"
+  }
+}

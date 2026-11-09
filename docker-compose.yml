@@ -1,0 +1,9 @@
+# Optional: run the tests in a container identical to CI.
+services:
+  tests:
+    build: .
+    environment:
+      BASE_URL: https://automationexercise.com
+    volumes:
+      - ./reports:/work/reports
+      - ./test-results:/work/test-results

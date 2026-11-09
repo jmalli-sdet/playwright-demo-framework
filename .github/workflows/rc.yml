@@ -1,0 +1,17 @@
+# ≈ Nike Jenkinsfile-android-qe-rc-trigger.groovy
+# Runs when a release candidate tag is pushed.
+name: RC • Full suite
+on:
+  push:
+    tags: [ 'v*' ]
+
+jobs:
+  rc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npx playwright test

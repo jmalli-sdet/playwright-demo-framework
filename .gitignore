@@ -1,0 +1,27 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+
+# Playwright
+test-results/
+reports/
+playwright-report/
+blob-report/
+.playwright/
+.auth/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+
+# Visual regression snapshots overrides
+**/__snapshots__/*-actual.*
+**/__snapshots__/*-diff.*
