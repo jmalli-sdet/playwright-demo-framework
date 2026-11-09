@@ -9,6 +9,9 @@ test-results/
 reports/
 playwright-report/
 blob-report/
+# Guard against misconfigured Allure reporter writing to repo root instead of reports/
+allure-results/
+allure-report/
 .playwright/
 .auth/
 

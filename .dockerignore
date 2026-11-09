@@ -1,0 +1,15 @@
+# Skip host-local noise so the Docker build context stays small and layers
+# don't invalidate every time results change.
+node_modules
+.auth
+reports
+test-results
+playwright-report
+.git
+.github
+.vscode
+.idea
+*.log
+.env
+.env.local
+.DS_Store

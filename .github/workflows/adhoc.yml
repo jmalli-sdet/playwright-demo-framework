@@ -1,0 +1,93 @@
+# ≈ Nike Jenkinsfile-android-qe-coverage-trigger.groovy
+#
+# Ad-hoc coverage run
+#   - Manual trigger from the Actions tab.
+#   - Lets anyone pick a grep expression, a project, and a shard count —
+#     useful for pre-merge impact runs and for reproducing a CI flake locally.
+#
+name: Ad-hoc • Coverage
+
+on:
+  workflow_dispatch:
+    inputs:
+      grep:
+        description: 'Grep expression (e.g. @P1, @checkout, "login|cart")'
+        required: true
+        default: '@smoke'
+      project:
+        description: Playwright project
+        required: true
+        default: chromium-en-US
+        type: choice
+        options:
+          - chromium-en-US
+          - webkit-en-US
+          - mobile-chrome-pixel7
+          - chromium-fr-FR
+      shards:
+        description: Shard count
+        required: true
+        default: '1'
+        type: choice
+        options: [ '1', '2', '4' ]
+
+jobs:
+  run:
+    name: Shard ${{ matrix.shard }}/${{ inputs.shards }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # Fan-out = inputs.shards. The matrix is pre-expanded for 1/2/4.
+        shard: ${{ fromJson(inputs.shards == '1' && '[1]' || inputs.shards == '2' && '[1,2]' || '[1,2,3,4]') }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - uses: actions/cache@v4
+        id: pw-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-pw-${{ hashFiles('package-lock.json') }}
+      - run: npm ci
+      - if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps
+      - if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps
+
+      - name: Run
+        env:
+          PLAYWRIGHT_BLOB: '1'
+        run: npx playwright test
+             --project=${{ inputs.project }}
+             --grep "${{ inputs.grep }}"
+             --shard=${{ matrix.shard }}/${{ inputs.shards }}
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: blob-${{ matrix.shard }}
+          path: reports/blob
+
+  merge:
+    if: always()
+    needs: [run]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          path: all-blob-reports
+          pattern: blob-*
+          merge-multiple: true
+      - run: npx playwright merge-reports --reporter html,./src/utils/reporting/DocumentationReporter.ts
+             ./all-blob-reports
+      - uses: actions/upload-artifact@v4
+        with:
+          name: html-report
+          path: playwright-report

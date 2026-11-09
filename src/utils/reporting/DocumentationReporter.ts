@@ -59,6 +59,7 @@ export default class DocumentationReporter implements Reporter {
     async onEnd(result: FullResult): Promise<void> {
         const out = path.resolve('reports/traceability-matrix.md');
         fs.mkdirSync(path.dirname(out), { recursive: true });
+        await this.postToSlackIfConfigured(result);
 
         const lines: string[] = [];
         lines.push('# Traceability Matrix');
@@ -102,6 +103,43 @@ export default class DocumentationReporter implements Reporter {
 
     printsToStdio(): boolean {
         return false;
+    }
+
+    // ────────────────────────────────────────────────────────────────────
+    // Slack webhook integration (opt-in via SLACK_WEBHOOK env var).
+    //
+    // Nike analog: DocumentationReportHelper.kt → SlackNotifier.kt. Posts a
+    // compact one-liner per CI run so QE/dev leads see status in-channel
+    // without having to open Jenkins.
+    // ────────────────────────────────────────────────────────────────────
+    private async postToSlackIfConfigured(result: FullResult): Promise<void> {
+        const webhook = process.env.SLACK_WEBHOOK;
+        if (!webhook) return;
+
+        const totals = this.rows.reduce<Record<string, number>>((acc, r) => {
+            acc[r.status] = (acc[r.status] ?? 0) + 1; return acc;
+        }, {});
+        const emoji = result.status === 'passed'    ? ':white_check_mark:'
+                    : result.status === 'failed'    ? ':red_circle:'
+                    : result.status === 'timedout'  ? ':hourglass:'
+                    : ':warning:';
+        const runUrl = process.env.GITHUB_SERVER_URL && process.env.GITHUB_REPOSITORY && process.env.GITHUB_RUN_ID
+            ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
+            : '';
+        const text = `${emoji} Playwright run *${result.status}* — ${this.rows.length} tests ${JSON.stringify(totals)}${runUrl ? ` • <${runUrl}|open run>` : ''}`;
+
+        try {
+            // Native fetch (Node ≥ 18). Avoid adding a dep just for this.
+            await fetch(webhook, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({ text }),
+            });
+            console.log(`[DocumentationReporter] Slack notified → ${webhook.replace(/\/services\/.*/, '/services/***')}`);
+        } catch (err) {
+            // Never fail the test run because the notification failed.
+            console.warn(`[DocumentationReporter] Slack POST failed: ${(err as Error).message}`);
+        }
     }
 }
 

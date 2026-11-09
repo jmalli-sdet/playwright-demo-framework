@@ -1,9 +1,38 @@
-# Optional: run the tests in a container identical to CI.
+#
+# docker compose: three profiles over the same image
+#   tests   → headless run, writes blob + reports back to host
+#   report  → opens the merged HTML report on http://localhost:9323
+#   headed  → opens an X11 window (requires host X server; macOS: XQuartz)
+#
 services:
   tests:
     build: .
+    image: playwright-demo-framework:local
     environment:
-      BASE_URL: https://automationexercise.com
+      BASE_URL: ${BASE_URL:-https://automationexercise.com}
+      CI: '1'
+      PLAYWRIGHT_BLOB: '1'
     volumes:
       - ./reports:/work/reports
       - ./test-results:/work/test-results
+    # Use the host network when available for /etc/hosts tricks.
+    network_mode: bridge
+
+  report:
+    image: playwright-demo-framework:local
+    command: ["npx", "playwright", "show-report", "reports/html"]
+    ports:
+      - "9323:9323"
+    volumes:
+      - ./reports:/work/reports
+    depends_on: [ tests ]
+
+  headed:
+    image: playwright-demo-framework:local
+    environment:
+      DISPLAY: ${DISPLAY:-:0}
+    command: ["npx", "playwright", "test", "--headed", "--project=chromium-en-US"]
+    volumes:
+      - ./reports:/work/reports
+      - ./test-results:/work/test-results
+      - /tmp/.X11-unix:/tmp/.X11-unix   # mac: brew install xquartz && xhost +localhost

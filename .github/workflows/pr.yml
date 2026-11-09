@@ -1,28 +1,125 @@
 # ≈ Nike Jenkinsfile-android-feature-dev.groovy
-# Runs P1 smoke on every pull request, 2 shards in parallel.
+#
+# PR • P1 Smoke
+#   - Runs @P1 on 2 shards × chromium-en-US (fast feedback)
+#   - Each shard uploads a blob report; a final `merge` job stitches them
+#     into one HTML report + a Markdown traceability matrix.
+#   - Cancels in-progress runs for the same PR when a new commit lands.
+#
 name: PR • P1 Smoke
+
 on:
   pull_request:
     branches: [ main ]
 
+concurrency:
+  group: pr-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   smoke:
-    name: P1 Smoke (shard ${{ matrix.shard }}/2)
+    name: P1 Smoke (shard ${{ matrix.shard }}/${{ strategy.job-total }})
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
         shard: [1, 2]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: pw-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-pw-${{ hashFiles('package-lock.json') }}
+
+      - run: npm ci
+
+      - name: Install Playwright browsers
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Install Playwright system deps (cached browsers)
+        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Run P1 smoke
+        env:
+          PLAYWRIGHT_BLOB: '1'
+        run: npx playwright test
+             --project=chromium-en-US
+             --grep @P1
+             --shard=${{ matrix.shard }}/2
+
+      - name: Upload blob report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blob-report-${{ matrix.shard }}
+          path: reports/blob
+          retention-days: 7
+
+      - name: Upload trace + videos on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-shard-${{ matrix.shard }}
+          path: test-results/
+          retention-days: 7
+
+  merge:
+    name: Merge reports
+    if: always()
+    needs: [smoke]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: npm }
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium webkit
-      - run: npx playwright test --grep @P1 --shard=${{ matrix.shard }}/2
-      - uses: actions/upload-artifact@v4
-        if: always()
         with:
-          name: html-report-shard-${{ matrix.shard }}
-          path: reports/html
-          retention-days: 7
+          node-version: 20
+          cache: npm
+      - run: npm ci
+
+      - name: Download blob reports
+        uses: actions/download-artifact@v4
+        with:
+          path: all-blob-reports
+          pattern: blob-report-*
+          merge-multiple: true
+
+      - name: Merge into HTML report
+        run: npx playwright merge-reports --reporter html,./src/utils/reporting/DocumentationReporter.ts
+             ./all-blob-reports
+
+      - name: Upload merged HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report
+          path: playwright-report
+          retention-days: 14
+
+      - name: Upload traceability matrix
+        uses: actions/upload-artifact@v4
+        with:
+          name: traceability-matrix
+          path: reports/traceability-matrix.md
+          retention-days: 30
+
+      - name: Post PR summary
+        if: always()
+        run: |
+          echo "### PR • P1 Smoke results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f reports/traceability-matrix.md ]; then
+            head -n 80 reports/traceability-matrix.md >> "$GITHUB_STEP_SUMMARY"
+          fi

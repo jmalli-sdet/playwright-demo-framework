@@ -1,29 +1,123 @@
 # ≈ Nike Jenkinsfile-android-qe-multi-threaded-dynamic.groovy
-# Runs the full P2 regression on cron, 4 shards × 2 projects.
+#
+# Nightly • P2 Regression
+#   - Full @P2 across (chromium-en-US, webkit-en-US, chromium-fr-FR) × 4 shards.
+#   - All shards emit blob reports; `merge` job stitches them + uploads Allure.
+#   - On failure, posts a Slack webhook message (if SLACK_WEBHOOK secret set).
+#
 name: Nightly • P2 Regression
+
 on:
-  schedule: [ { cron: '0 4 * * *' } ]
+  schedule: [ { cron: '0 4 * * *' } ]  # 04:00 UTC
   workflow_dispatch:
+
+concurrency:
+  group: nightly
+  cancel-in-progress: false
 
 jobs:
   regression:
+    name: ${{ matrix.project }} • shard ${{ matrix.shard }}/4
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
-        project: [chromium-en-US, webkit-en-US]
+        project: [ chromium-en-US, webkit-en-US, chromium-fr-FR ]
+        shard:   [ 1, 2, 3, 4 ]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: pw-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-pw-${{ hashFiles('package-lock.json') }}
+
+      - run: npm ci
+      - name: Install browsers
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps
+      - name: Install system deps (cached browsers)
+        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps
+
+      - name: Run P2 regression
+        env:
+          PLAYWRIGHT_BLOB: '1'
+          ALLURE: '1'
+        run: npx playwright test
+             --grep @P2
+             --project=${{ matrix.project }}
+             --shard=${{ matrix.shard }}/4
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: blob-report-${{ matrix.project }}-${{ matrix.shard }}
+          path: reports/blob
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-results-${{ matrix.project }}-${{ matrix.shard }}
+          path: reports/allure-results
+          retention-days: 7
+
+  merge:
+    name: Merge reports + notify
+    if: always()
+    needs: [regression]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm }
       - run: npm ci
-      - run: npx playwright install --with-deps
-      - run: npx playwright test --grep @P2 --project=${{ matrix.project }} --shard=${{ matrix.shard }}/4
-      - uses: actions/upload-artifact@v4
-        if: always()
+
+      - name: Download blob reports
+        uses: actions/download-artifact@v4
         with:
-          name: results-${{ matrix.project }}-shard-${{ matrix.shard }}
-          path: |
-            reports/
-            test-results/
+          path: all-blob-reports
+          pattern: blob-report-*
+          merge-multiple: true
+
+      - name: Merge blobs → HTML
+        run: npx playwright merge-reports --reporter html,./src/utils/reporting/DocumentationReporter.ts
+             ./all-blob-reports
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: html-report
+          path: playwright-report
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: traceability-matrix
+          path: reports/traceability-matrix.md
+          retention-days: 90
+
+      - name: Publish nightly summary
+        run: |
+          echo "### Nightly • P2 Regression" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f reports/traceability-matrix.md ]; then
+            tail -n 20 reports/traceability-matrix.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Notify Slack on failure
+        if: failure() && env.SLACK_WEBHOOK != ''
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          curl -sS -X POST -H 'content-type: application/json' \
+               --data "{\"text\":\":red_circle: Nightly P2 regression failed — ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+               "$SLACK_WEBHOOK"

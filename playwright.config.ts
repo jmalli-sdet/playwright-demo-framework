@@ -43,13 +43,30 @@ export default defineConfig({
     workers: process.env.CI ? 4 : undefined,
     retries: process.env.CI ? 2 : 0,          // = RetryTestRule(retryCount = 2)
     forbidOnly: !!process.env.CI,
-    reporter: [
-        ['list'],
-        ['html', { outputFolder: 'reports/html', open: 'never' }],
-        ['junit', { outputFile: 'reports/junit.xml' }],
-        ['json',  { outputFile: 'reports/results.json' }],
-        ['./src/utils/reporting/DocumentationReporter.ts'],
-    ],
+    // Reporter stack:
+    //   • local runs                    → list + html + junit + json + DocumentationReporter
+    //   • CI shards (PLAYWRIGHT_BLOB=1) → github + blob (one .zip per shard, merged in a
+    //                                      downstream job via `playwright merge-reports`)
+    //   • Allure (ALLURE=1)             → appended on top of whichever stack is active
+    reporter: (() => {
+        const base: Parameters<typeof defineConfig>[0]['reporter'] = process.env.PLAYWRIGHT_BLOB
+            ? [
+                ['github'],
+                ['blob', { outputDir: 'reports/blob' }],
+                ['./src/utils/reporting/DocumentationReporter.ts'],
+            ]
+            : [
+                ['list'],
+                ['html', { outputFolder: 'reports/html', open: 'never' }],
+                ['junit', { outputFile: 'reports/junit.xml' }],
+                ['json',  { outputFile: 'reports/results.json' }],
+                ['./src/utils/reporting/DocumentationReporter.ts'],
+            ];
+        if (process.env.ALLURE) {
+            (base as unknown as unknown[][]).push(['allure-playwright', { resultsDir: 'reports/allure-results' }]);
+        }
+        return base;
+    })(),
     use: sharedUse,
 
     // ────────────────────────────────────────────────────────────────────

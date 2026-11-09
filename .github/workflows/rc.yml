@@ -1,17 +1,122 @@
 # ≈ Nike Jenkinsfile-android-qe-rc-trigger.groovy
-# Runs when a release candidate tag is pushed.
+#
+# RC • Full suite
+#   - Triggered by a `v*` tag push.
+#   - Full matrix (3 projects × 4 shards), merged HTML + traceability matrix +
+#     Allure artifact + Markdown release-notes summary attached to the tag build.
+#
 name: RC • Full suite
+
 on:
   push:
     tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      release-notes:
+        description: Optional free-text release notes
+        required: false
+        default: ''
 
 jobs:
-  rc:
+  full:
+    name: ${{ matrix.project }} • shard ${{ matrix.shard }}/4
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [ chromium-en-US, webkit-en-US, chromium-fr-FR, mobile-chrome-pixel7 ]
+        shard:   [ 1, 2, 3, 4 ]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+
+      - uses: actions/cache@v4
+        id: pw-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-pw-${{ hashFiles('package-lock.json') }}
+
+      - run: npm ci
+      - if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps
+      - if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps
+
+      - name: Run full suite
+        env:
+          PLAYWRIGHT_BLOB: '1'
+          ALLURE: '1'
+        run: npx playwright test
+             --project=${{ matrix.project }}
+             --shard=${{ matrix.shard }}/4
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: blob-${{ matrix.project }}-${{ matrix.shard }}
+          path: reports/blob
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-${{ matrix.project }}-${{ matrix.shard }}
+          path: reports/allure-results
+          retention-days: 30
+
+  publish:
+    name: Publish RC report + release notes
+    if: always()
+    needs: [full]
+    runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm }
       - run: npm ci
-      - run: npx playwright install --with-deps
-      - run: npx playwright test
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: all-blob-reports
+          pattern: blob-*
+          merge-multiple: true
+
+      - name: Merge blobs
+        run: npx playwright merge-reports --reporter html,./src/utils/reporting/DocumentationReporter.ts
+             ./all-blob-reports
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: html-report
+          path: playwright-report
+          retention-days: 365
+
+      - name: Write release notes
+        run: |
+          mkdir -p dist
+          {
+            echo "# ${{ github.ref_name }} — RC test summary"
+            echo
+            echo "- Repo: ${{ github.repository }}"
+            echo "- Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "- Tag: \`${{ github.ref_name }}\`"
+            echo
+            if [ -f reports/traceability-matrix.md ]; then
+              cat reports/traceability-matrix.md
+            fi
+            if [ -n "${{ inputs.release-notes }}" ]; then
+              echo
+              echo "## Notes"
+              echo "${{ inputs.release-notes }}"
+            fi
+          } > dist/release-notes.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: dist/release-notes.md
+          retention-days: 365

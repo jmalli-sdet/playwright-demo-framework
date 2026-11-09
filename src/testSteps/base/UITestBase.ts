@@ -46,6 +46,8 @@ import { ShopHomeSteps }         from '../shopHome/ShopHomeSteps';
 import { SettingSteps }          from '../settings/SettingSteps';
 import { OnboardingSteps }       from '../onboarding/OnboardingSteps';
 import { DeeplinkSteps }         from '../deeplinking/DeeplinkSteps';
+import { FavoritesSteps }        from '../favorites/FavoritesSteps';
+import { UserLocaleConfigurationSteps } from '../userLocaleConfiguration/UserLocaleConfigurationSteps';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 import { setRegion }     from '../../utils/helpers/RegionHelper';
@@ -79,6 +81,8 @@ type UIFixtures = {
     settingSteps:        SettingSteps;
     onboardingSteps:     OnboardingSteps;
     deeplinkSteps:       DeeplinkSteps;
+    favoritesSteps:      FavoritesSteps;
+    userLocaleConfigurationSteps: UserLocaleConfigurationSteps;
 };
 
 /**
@@ -108,6 +112,8 @@ export const test = base.extend<UIFixtures>({
     settingSteps:        async ({ page }, use) => { await use(new SettingSteps(page)); },
     onboardingSteps:     async ({ page }, use) => { await use(new OnboardingSteps(page)); },
     deeplinkSteps:       async ({ page }, use) => { await use(new DeeplinkSteps(page)); },
+    favoritesSteps:      async ({ page }, use) => { await use(new FavoritesSteps(page)); },
+    userLocaleConfigurationSteps: async ({ page }, use) => { await use(new UserLocaleConfigurationSteps(page)); },
 
     // ── The `page` fixture is overridden to compose our "RuleChain" ───────────
     //    Order below mirrors RuleChain.outerRule(...).around(...).around(...):
