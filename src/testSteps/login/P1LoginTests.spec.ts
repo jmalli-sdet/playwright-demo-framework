@@ -9,6 +9,9 @@
 
 import { test, expect } from '../base/UITestBase';
 
+// Login tests must start anonymous — reset any storageState an earlier project set.
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe('Login — P1 Smoke', { tag: ['@P1', '@smoke', '@login'] }, () => {
 
     test.beforeEach(async ({ loginSteps }) => {

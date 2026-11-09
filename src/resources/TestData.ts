@@ -8,20 +8,30 @@
 
 import { faker } from '@faker-js/faker';
 import { TestAccount, UserType } from './TestAccount';
+import type { CreateAccountPayload } from '../utils/api/clients/UserAccountApiClient';
+
+/**
+ * A stable demo account that the framework owns on automationexercise.com.
+ * global.setup.ts creates it idempotently (POST /api/createAccount) before
+ * any spec runs. auth.setup.ts then UI-logs-in as this account once and
+ * persists the storageState to .auth/user.json.
+ */
+export const P1_DEMO_ACCOUNT = new TestAccount({
+    email:    'jm-demo-framework-p1@demo.local',
+    password: 'DemoFrameworkP1!2026',
+    name:     'JM Demo P1',
+    userType: UserType.P1_BILLING,
+});
 
 export class TestData {
 
-    // ── Static sample locales (= TestData.KO_KR / EN_US / DE_AT in Nike) ─────
+    // ── Locale constants (= TestData.KO_KR in Nike) ──────────────────────────
     static readonly EN_US = 'en-US';
     static readonly JA_JP = 'ja-JP';
     static readonly KO_KR = 'ko-KR';
     static readonly FR_FR = 'fr-FR';
 
-    // ── Seeded users ──────────────────────────────────────────────────────────
-    //    (For Evening 1 we only expose an invalid user. Evening 2's
-    //    `global.setup.ts` will register real users against automationexercise
-    //    and populate the UserType.P1_BILLING / P1_SHIPPING slots.)
-
+    // ── Known-bad credentials for negative-login scenarios ───────────────────
     getInvalidUser(): TestAccount {
         return new TestAccount({
             email: 'invalid.user@does-not-exist.test',
@@ -31,14 +41,32 @@ export class TestData {
         });
     }
 
-    getP1User(_type: UserType): TestAccount {
-        // Replaced in Evening 2 once we seed via API.
-        return new TestAccount({
-            email: process.env.TEST_USER_EMAIL ?? '',
-            password: process.env.TEST_USER_PASSWORD ?? '',
-            name: 'Demo User',
-            userType: UserType.P1_BILLING,
-        });
+    /** Stable P1 account (created by global.setup.ts via REST). */
+    getP1User(_type: UserType = UserType.P1_BILLING): TestAccount {
+        return P1_DEMO_ACCOUNT;
+    }
+
+    /** Fully-populated payload for POST /api/createAccount. */
+    buildCreateAccountPayload(acct: TestAccount): CreateAccountPayload {
+        return {
+            name:         acct.name,
+            email:        acct.email,
+            password:     acct.password,
+            title:        'Mr',
+            birth_date:   '15',
+            birth_month:  'January',
+            birth_year:   '1995',
+            firstname:    acct.name.split(' ')[0] ?? 'Demo',
+            lastname:     acct.name.split(' ')[1] ?? 'User',
+            company:      'Demo Framework',
+            address1:     '123 Demo Street',
+            address2:     'Apt 4',
+            country:      'United States',
+            zipcode:      '10001',
+            state:        'NY',
+            city:         'New York',
+            mobile_number: '+15555550101',
+        };
     }
 
     // ── Ephemeral generated data ──────────────────────────────────────────────
@@ -63,6 +91,26 @@ export class TestData {
             country:   countryISO,
             mobile:    faker.phone.number(),
         };
+    }
+
+    /** Fake but valid-format payment details for the AUT's demo checkout. */
+    samplePayment() {
+        return {
+            nameOnCard: 'JM Demo',
+            cardNumber: '4111 1111 1111 1111',
+            cvc:        '123',
+            expiryMM:   '12',
+            expiryYYYY: '2030',
+        };
+    }
+
+    /** Stable, canned search queries used by the data-driven P2 search spec. */
+    searchQueries(): Array<{ query: string; expectedKeyword: string }> {
+        return [
+            { query: 'dress', expectedKeyword: 'dress' },
+            { query: 'top',   expectedKeyword: 'top'   },
+            { query: 'jeans', expectedKeyword: 'jean'  },
+        ];
     }
 
     isCurrentGeo(locale: string): boolean {

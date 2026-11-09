@@ -29,9 +29,13 @@ const sharedUse = {
 export default defineConfig({
     testDir: '.',                             // look in both src/testSteps and tests/
     testMatch: ['src/testSteps/**/*.spec.ts', 'tests/**/*.spec.ts'],
+    testIgnore: ['tests/*.setup.ts'],         // setup files are referenced by the `setup` project below
     outputDir: 'test-results',
     timeout: 90_000,                          // per-test
     expect: { timeout: 10_000, toHaveScreenshot: { maxDiffPixels: 50 } },
+
+    // Runs ONCE before any project — bootstraps the P1 demo account via REST.
+    globalSetup: require.resolve('./tests/global.setup.ts'),
 
     fullyParallel: true,
     workers: process.env.CI ? 4 : undefined,
@@ -53,11 +57,17 @@ export default defineConfig({
     // Run with --project=<name>, or run all with just `npm test`.
     // ────────────────────────────────────────────────────────────────────
     projects: [
-        // ----- Evening 2 will add an "auth setup" project here that writes
-        //       .auth/<user>.json consumed via storageState below.
+        // ── Setup project: UI-logs-in once, persists storageState to .auth/user.json
+        {
+            name: 'setup',
+            testMatch: /tests[\\/]auth\.setup\.ts/,
+            testIgnore: [],                         // override global testIgnore so auth.setup.ts is discovered
+            use: { ...devices['Desktop Chrome'], ...sharedUse, locale: 'en-US' },
+        },
 
         {
             name: 'chromium-en-US',
+            dependencies: ['setup'],
             use: {
                 ...devices['Desktop Chrome'],
                 ...sharedUse,
@@ -67,6 +77,7 @@ export default defineConfig({
         },
         {
             name: 'webkit-en-US',
+            dependencies: ['setup'],
             use: {
                 ...devices['Desktop Safari'],
                 ...sharedUse,
@@ -76,6 +87,7 @@ export default defineConfig({
         },
         {
             name: 'mobile-chrome-pixel7',
+            dependencies: ['setup'],
             use: {
                 ...devices['Pixel 7'],
                 ...sharedUse,
@@ -84,6 +96,7 @@ export default defineConfig({
         },
         {
             name: 'chromium-fr-FR',
+            dependencies: ['setup'],
             use: {
                 ...devices['Desktop Chrome'],
                 ...sharedUse,

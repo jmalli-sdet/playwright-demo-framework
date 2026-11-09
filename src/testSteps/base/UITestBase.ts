@@ -34,10 +34,17 @@ import { AuthorizationApiClient } from '../../utils/api/clients/AuthorizationApi
 import { UserAccountApiClient }    from '../../utils/api/clients/UserAccountApiClient';
 
 // ── Feature steps (= testSteps/<area>/<Area>Steps in Nike) ───────────────────
-import { LoginSteps } from '../login/LoginSteps';
+import { LoginSteps }            from '../login/LoginSteps';
+import { SearchSteps }           from '../search/SearchSteps';
+import { ProductDisplaySteps }   from '../productDetail/ProductDisplaySteps';
+import { CheckoutSteps }         from '../checkout/CheckoutSteps';
+import { ProfileSteps }          from '../profile/ProfileSteps';
+import { NavBarSteps }           from '../navigation/NavBarSteps';
+import { MemberHomeSteps }       from '../memberHome/MemberHomeSteps';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-import { setRegion } from '../../utils/helpers/RegionHelper';
+import { setRegion }     from '../../utils/helpers/RegionHelper';
+import { NetworkHelper } from '../../utils/helpers/NetworkHelper';
 
 /**
  * Fixture set exposed to every test in the framework.
@@ -56,9 +63,13 @@ type UIFixtures = {
     userAccountApi: UserAccountApiClient;
 
     // feature steps (= *Steps.kt classes)
-    loginSteps: LoginSteps;
-    // Evening 2 adds: shopHomeSteps, searchSteps, productDisplaySteps,
-    //                 checkoutSteps, profileSteps, favSteps, memberHomeSteps, ...
+    loginSteps:          LoginSteps;
+    searchSteps:         SearchSteps;
+    productDisplaySteps: ProductDisplaySteps;
+    checkoutSteps:       CheckoutSteps;
+    profileSteps:        ProfileSteps;
+    navBarSteps:         NavBarSteps;
+    memberHomeSteps:     MemberHomeSteps;
 };
 
 /**
@@ -73,17 +84,17 @@ export const test = base.extend<UIFixtures>({
     },
 
     // ── API clients (share the browser's APIRequestContext → shared cookies) ─
-    authApi: async ({ request }, use) => {
-        await use(new AuthorizationApiClient(request));
-    },
-    userAccountApi: async ({ request }, use) => {
-        await use(new UserAccountApiClient(request));
-    },
+    authApi:        async ({ request }, use) => { await use(new AuthorizationApiClient(request)); },
+    userAccountApi: async ({ request }, use) => { await use(new UserAccountApiClient(request)); },
 
     // ── Feature steps — same lifetime as the `page` fixture ───────────────────
-    loginSteps: async ({ page }, use) => {
-        await use(new LoginSteps(page));
-    },
+    loginSteps:          async ({ page }, use) => { await use(new LoginSteps(page)); },
+    searchSteps:         async ({ page }, use) => { await use(new SearchSteps(page)); },
+    productDisplaySteps: async ({ page }, use) => { await use(new ProductDisplaySteps(page)); },
+    checkoutSteps:       async ({ page }, use) => { await use(new CheckoutSteps(page)); },
+    profileSteps:        async ({ page }, use) => { await use(new ProfileSteps(page)); },
+    navBarSteps:         async ({ page }, use) => { await use(new NavBarSteps(page)); },
+    memberHomeSteps:     async ({ page }, use) => { await use(new MemberHomeSteps(page)); },
 
     // ── The `page` fixture is overridden to compose our "RuleChain" ───────────
     //    Order below mirrors RuleChain.outerRule(...).around(...).around(...):
@@ -93,12 +104,15 @@ export const test = base.extend<UIFixtures>({
     //      4. PdpConfigurationRule   (per-test env tweaks)
     //      5. NotificationsRule      (dismiss browser notifications)
     //      6. BotProtectionHeaderRule (extra headers for bot-blocked sites)
-    page: async ({ page, context, browserName }, use, testInfo) => {
+    page: async ({ page, context }, use, testInfo) => {
         applyUncaughtExceptionRule(page, testInfo);
         applyDisabledTestRule(testInfo);
         applyPdpConfigurationRule(page);
         await applyNotificationsRule(context);
         await applyBotProtectionHeaderRule(context);
+
+        // Strip ads/analytics — faster + more reliable + clean console.
+        await NetworkHelper.blockAds(context);
 
         // region/locale setup — equivalent of @Before { regionSetUp() }
         await setRegion(context, testInfo.project.use.locale ?? 'en-US');

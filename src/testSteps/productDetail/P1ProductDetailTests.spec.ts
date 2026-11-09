@@ -1,9 +1,35 @@
 //
-//  P1ProductDetailTests.spec.ts   (placeholder — populated in Evening 2)
-//  = Nike P1ProductDetailTests.kt
+//  P1ProductDetailTests.spec.ts
+//  = P1ProductDetailTests.kt
 //
-import { test } from '../base/UITestBase';
 
-test.describe('ProductDetail — P1 Smoke', { tag: ['@P1', '@smoke'] }, () => {
-    test.fixme('TODO — add P1 scenarios for ProductDetail', async () => {});
+import { test, expect } from '../base/UITestBase';
+
+test.describe('Product Detail — P1 Smoke', { tag: ['@P1', '@smoke', '@pdp'] }, () => {
+
+    test('P1 | PDP | Direct-link opens PDP and shows all product attributes',
+        async ({ productDisplaySteps }, testInfo) => {
+            testInfo.annotations.push(
+                { type: 'description', description: 'Direct navigation to a known PDP shows name/price/availability/condition/brand.' },
+                { type: 'jira', description: 'DEMO-301' },
+                { type: 'priority', description: 'P1' },
+            );
+            await productDisplaySteps.openPdpById(1);
+            await productDisplaySteps.verifyPdpDetailsVisible();
+        });
+
+    test('P1 | PDP | Setting quantity=3 adds 3 items to the cart',
+        async ({ productDisplaySteps, page }, testInfo) => {
+            testInfo.annotations.push(
+                { type: 'description', description: 'Quantity entered on the PDP is honored on the cart row.' },
+                { type: 'jira', description: 'DEMO-302' },
+                { type: 'priority', description: 'P1' },
+            );
+            await productDisplaySteps.openPdpById(1);
+            await productDisplaySteps.setQuantity(3);
+            await productDisplaySteps.addToCart();
+            await productDisplaySteps.goToCartFromModal();
+
+            await expect(page.locator('.cart_quantity button').first()).toHaveText('3');
+        });
 });
