@@ -9,8 +9,10 @@
 import { defineConfig, devices } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import { registerCustomMatchers } from './src/utils/extensions/ExpectExtensions';
 
 dotenv.config();
+registerCustomMatchers();   // makes `expect().toHaveCurrencyFormat()` globally available
 
 const BASE_URL = process.env.BASE_URL ?? 'https://automationexercise.com';
 
@@ -46,8 +48,7 @@ export default defineConfig({
         ['html', { outputFolder: 'reports/html', open: 'never' }],
         ['junit', { outputFile: 'reports/junit.xml' }],
         ['json',  { outputFile: 'reports/results.json' }],
-        // Evening 3 will add: ['./src/utils/reporting/DocumentationReporter.ts']
-        //                    ['./src/utils/reporting/SlackReporter.ts']
+        ['./src/utils/reporting/DocumentationReporter.ts'],
     ],
     use: sharedUse,
 

@@ -30,11 +30,14 @@ export class MemberHomeSteps {
     }
 
     async verifyHomePageLoaded(): Promise<void> {
-        await test.step('Verify key home-page sections', async () => {
-            await expect(this.heroSlider).toBeVisible();
-            await expect(this.featuresItems).toBeVisible();
-            await expect(this.categoriesBox).toBeVisible();
-            await expect(this.brandsBox).toBeVisible();
+        // Soft assertions: all 4 run even if the first fails — surfaces the
+        // complete failure picture in one report instead of hiding
+        // downstream regressions. (Playwright `expect.soft()` pattern.)
+        await test.step('Verify key home-page sections (soft)', async () => {
+            await expect.soft(this.heroSlider).toBeVisible();
+            await expect.soft(this.featuresItems).toBeVisible();
+            await expect.soft(this.categoriesBox).toBeVisible();
+            await expect.soft(this.brandsBox).toBeVisible();
         });
     }
 }

@@ -8,14 +8,18 @@ import { test, expect } from '../base/UITestBase';
 test.describe('Product Detail — P1 Smoke', { tag: ['@P1', '@smoke', '@pdp'] }, () => {
 
     test('P1 | PDP | Direct-link opens PDP and shows all product attributes',
-        async ({ productDisplaySteps }, testInfo) => {
+        async ({ productDisplaySteps, page }, testInfo) => {
             testInfo.annotations.push(
-                { type: 'description', description: 'Direct navigation to a known PDP shows name/price/availability/condition/brand.' },
+                { type: 'description', description: 'Direct navigation to a known PDP shows name/price/availability/condition/brand; price matches custom toHaveCurrencyFormat matcher.' },
                 { type: 'jira', description: 'DEMO-301' },
                 { type: 'priority', description: 'P1' },
             );
             await productDisplaySteps.openPdpById(1);
             await productDisplaySteps.verifyPdpDetailsVisible();
+
+            // Custom matcher registered via expect.extend() in ExpectExtensions.ts.
+            const price = page.locator('.product-information span span').first();
+            await expect(price).toHaveCurrencyFormat('Rs.');
         });
 
     test('P1 | PDP | Setting quantity=3 adds 3 items to the cart',

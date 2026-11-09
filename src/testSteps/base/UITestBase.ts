@@ -17,6 +17,7 @@
 //
 
 import { test as base, expect, type Page, type BrowserContext, type APIRequestContext } from '@playwright/test';
+import '../../utils/extensions/ExpectExtensions';  // side-effect import — registers types for custom matchers
 
 // ── Rules (= base/rules/ in Nike) ─────────────────────────────────────────────
 import { applyUncaughtExceptionRule } from './rules/UncaughtExceptionRule';
@@ -41,6 +42,10 @@ import { CheckoutSteps }         from '../checkout/CheckoutSteps';
 import { ProfileSteps }          from '../profile/ProfileSteps';
 import { NavBarSteps }           from '../navigation/NavBarSteps';
 import { MemberHomeSteps }       from '../memberHome/MemberHomeSteps';
+import { ShopHomeSteps }         from '../shopHome/ShopHomeSteps';
+import { SettingSteps }          from '../settings/SettingSteps';
+import { OnboardingSteps }       from '../onboarding/OnboardingSteps';
+import { DeeplinkSteps }         from '../deeplinking/DeeplinkSteps';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 import { setRegion }     from '../../utils/helpers/RegionHelper';
@@ -70,6 +75,10 @@ type UIFixtures = {
     profileSteps:        ProfileSteps;
     navBarSteps:         NavBarSteps;
     memberHomeSteps:     MemberHomeSteps;
+    shopHomeSteps:       ShopHomeSteps;
+    settingSteps:        SettingSteps;
+    onboardingSteps:     OnboardingSteps;
+    deeplinkSteps:       DeeplinkSteps;
 };
 
 /**
@@ -95,6 +104,10 @@ export const test = base.extend<UIFixtures>({
     profileSteps:        async ({ page }, use) => { await use(new ProfileSteps(page)); },
     navBarSteps:         async ({ page }, use) => { await use(new NavBarSteps(page)); },
     memberHomeSteps:     async ({ page }, use) => { await use(new MemberHomeSteps(page)); },
+    shopHomeSteps:       async ({ page }, use) => { await use(new ShopHomeSteps(page)); },
+    settingSteps:        async ({ page }, use) => { await use(new SettingSteps(page)); },
+    onboardingSteps:     async ({ page }, use) => { await use(new OnboardingSteps(page)); },
+    deeplinkSteps:       async ({ page }, use) => { await use(new DeeplinkSteps(page)); },
 
     // ── The `page` fixture is overridden to compose our "RuleChain" ───────────
     //    Order below mirrors RuleChain.outerRule(...).around(...).around(...):
