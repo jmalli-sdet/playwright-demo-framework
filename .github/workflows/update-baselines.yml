@@ -1,0 +1,92 @@
+# ≈ Nike Jenkinsfile-android-qe-baseline-refresh.groovy
+#
+# Update visual baselines
+#   - Manual trigger only (workflow_dispatch).
+#   - Runs @visual (or any grep) with --update-snapshots across every project
+#     on the real CI runner, so the committed baselines exactly match what
+#     nightly / RC will later diff against.
+#   - Commits any new or changed *-snapshots/*.png files back to the branch.
+#
+name: Update visual baselines
+
+on:
+  workflow_dispatch:
+    inputs:
+      grep:
+        description: 'Which tests to regenerate (default @visual)'
+        required: true
+        default: '@visual'
+      branch:
+        description: 'Branch to commit updated baselines to'
+        required: true
+        default: 'main'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    name: Regenerate baselines for all projects
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+
+      - uses: actions/cache@v4
+        id: pw-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-pw-${{ hashFiles('package-lock.json') }}
+
+      - run: npm ci
+
+      - name: Install Playwright browsers
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps
+
+      - name: Install Playwright system deps (cached browsers)
+        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps
+
+      - name: Regenerate baselines for every project
+        run: |
+          set +e
+          for project in chromium-en-US webkit-en-US chromium-fr-FR mobile-chrome-pixel7; do
+            echo "::group::$project"
+            npx playwright test \
+              --grep "${{ inputs.grep }}" \
+              --project="$project" \
+              --update-snapshots
+            echo "::endgroup::"
+          done
+          # --update-snapshots exits 0 when baselines are written/updated, so
+          # any non-zero here is a real failure (compile error, network, etc.)
+          # We continue regardless; the commit step will no-op if nothing changed.
+          exit 0
+
+      - name: Upload generated baselines (always, for inspection)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regenerated-baselines
+          path: '**/*-snapshots/**/*.png'
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Commit updated baselines
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A -- '**/*-snapshots/'
+          if git diff --cached --quiet; then
+            echo "No baseline changes to commit."
+            exit 0
+          fi
+          git commit -m "ci: refresh visual baselines (${{ inputs.grep }})"
+          git push origin HEAD:${{ inputs.branch }}
