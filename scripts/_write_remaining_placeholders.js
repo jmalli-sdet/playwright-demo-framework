@@ -12,7 +12,7 @@ const w = (rel, body) => {
 };
 
 const stub = (className, refEq, desc) => `//
-//  ${className}.ts   (placeholder â populated in Evening 2/3)
+//  ${className}.ts   (placeholder — populated in Evening 2/3)
 //  = reference ${refEq}
 //
 //  ${desc}
@@ -23,7 +23,7 @@ export class ${className} {
 }
 `;
 
-// ââ Additional API clients ââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── Additional API clients ────────────────────────────────────────────────────
 const apiClients = [
     ['UserCartApiClient',        'UserCartApiClient.kt',        'Seeds / clears the cart via REST so UI tests start from a known state.'],
     ['WishlistApiClient',        'WishlistApiClient.kt',        'Add / remove favorites via REST.'],
@@ -37,7 +37,7 @@ const apiClients = [
 for (const [cls, refEq, desc] of apiClients) {
     w(`src/utils/api/clients/${cls}.ts`,
 `//
-//  ${cls}.ts   (placeholder â populated in Evening 2)
+//  ${cls}.ts   (placeholder — populated in Evening 2)
 //  = reference ${refEq}
 //  ${desc}
 //
@@ -51,7 +51,7 @@ export class ${cls} extends ApiClientBase {
 `);
 }
 
-// ââ API interfaces + models âââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── API interfaces + models ───────────────────────────────────────────────────
 w('src/utils/api/interfaces/IApiClient.ts',
 `// = api/interfaces/ in the reference suite
 export interface IApiClient {
@@ -62,7 +62,7 @@ export interface IApiClient {
     w(`src/utils/api/models/${m}.ts`, `// = api/models/${m} in the reference suite\nexport interface ${m} { readonly id: string; }\n`);
 });
 
-// ââ Helpers âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── Helpers ───────────────────────────────────────────────────────────────────
 const helpers = [
     ['AutoDiscoveryHelper',  'AutoDiscoveryHelper.kt',  'Discover products / SKUs dynamically at runtime.'],
     ['FeatureFlagHelper',    'FeatureFlagHelper.kt',    'Flip feature flags via cookie / localStorage / route-interception.'],
@@ -78,7 +78,7 @@ for (const [cls, refEq, desc] of helpers) {
     w(`src/utils/helpers/${cls}.ts`, stub(cls, refEq, desc));
 }
 
-// ââ Reporters ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── Reporters ────────────────────────────────────────────────────────────────
 const reporters = [
     ['DocumentationReporter', 'DocumentationReportHelper.kt', 'Custom Playwright reporter that reads @Description + @Documentation annotations.'],
     ['ScreenshotProcessor',   'ScreenCaptureProcessor.kt',    'Post-processes screenshot folders (crop, resize, upload to S3).'],
@@ -91,9 +91,9 @@ for (const [cls, refEq, desc] of reporters) {
     w(`src/utils/reporting/${cls}.ts`, stub(cls, refEq, desc));
 }
 
-// ââ UI / networkrewriter âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── UI / networkrewriter ─────────────────────────────────────────────────────
 w('src/ui/networkrewriter/NetworkRewriter.ts',
-`// = ui/networkrewriter/ in reference â wraps page.route() so feature specs can
+`// = ui/networkrewriter/ in reference — wraps page.route() so feature specs can
 // rewrite responses without knowing Playwright plumbing.
 import type { BrowserContext } from '@playwright/test';
 
@@ -103,7 +103,7 @@ export class NetworkRewriter {
 }
 `);
 
-// ââ Extensions âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── Extensions ───────────────────────────────────────────────────────────────
 w('src/utils/extensions/ExpectExtensions.ts',
 `// Custom matchers (= TaggedAssert in reference).
 // Evening 3 will add: expect.extend({ toHaveCurrencyFormat(...) }).
@@ -114,9 +114,9 @@ w('src/utils/extensions/LocatorExtensions.ts',
 export {};
 `);
 
-// ââ Accessibility ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── Accessibility ────────────────────────────────────────────────────────────
 w('src/accessibility/AccessibilityCheck.ts',
-`// = accessibility/ in reference â axe-core wrapper, added in Evening 3.
+`// = accessibility/ in reference — axe-core wrapper, added in Evening 3.
 // npm i -D @axe-core/playwright
 export async function runAccessibilityCheck(/* page: Page, name: string */): Promise<void> {
     // TODO
@@ -127,7 +127,7 @@ w('src/accessibility/AccessibilitySuppressionsRepository.ts',
 export const ACCESSIBILITY_SUPPRESSIONS: Array<{ ruleId: string; reason: string }> = [];
 `);
 
-// ââ Utility files ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── Utility files ────────────────────────────────────────────────────────────
 w('src/utils/DeeplinkNavigator.ts',
 `// = DeeplinkNavigator.kt
 import type { Page } from '@playwright/test';
@@ -138,7 +138,7 @@ export class DeeplinkNavigator {
 }
 `);
 w('src/utils/BrowserContextWrappers.ts',
-`// = InstrumentationRegistryWrappers.kt â convenience wrappers around context ops.
+`// = InstrumentationRegistryWrappers.kt — convenience wrappers around context ops.
 import type { BrowserContext } from '@playwright/test';
 
 export class BrowserContextWrappers {
@@ -146,10 +146,10 @@ export class BrowserContextWrappers {
 }
 `);
 
-// ââ tests/ entrypoints âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── tests/ entrypoints ───────────────────────────────────────────────────────
 w('tests/global.setup.ts',
 `//
-//  global.setup.ts   (placeholder â populated in Evening 2)
+//  global.setup.ts   (placeholder — populated in Evening 2)
 //  = reference pre-test bootstrap
 //
 //  Evening 2 will: create P1/P2 test users via UserAccountApiClient,
@@ -165,7 +165,7 @@ export default async function globalTeardown(): Promise<void> {}
 `);
 w('tests/auth.setup.ts',
 `//
-//  auth.setup.ts   (placeholder â populated in Evening 2)
+//  auth.setup.ts   (placeholder — populated in Evening 2)
 //
 //  Will log in each test user once and persist storageState so subsequent
 //  tests re-use the cookies instead of re-logging through the UI.
@@ -173,10 +173,10 @@ w('tests/auth.setup.ts',
 export {};
 `);
 w('tests/api/health.api.spec.ts',
-`// Pure-API smoke test â demonstrates APIRequestContext fixture usage.
+`// Pure-API smoke test — demonstrates APIRequestContext fixture usage.
 import { test, expect } from '@playwright/test';
 
-test.describe('AUT /productsList â @P1 @api', { tag: ['@P1', '@api'] }, () => {
+test.describe('AUT /productsList — @P1 @api', { tag: ['@P1', '@api'] }, () => {
     test('productsList endpoint returns a non-empty catalog', async ({ request }) => {
         const res = await request.get('https://automationexercise.com/api/productsList');
         expect(res.ok()).toBeTruthy();
@@ -187,11 +187,11 @@ test.describe('AUT /productsList â @P1 @api', { tag: ['@P1', '@api'] }, () 
 });
 `);
 
-// ââ CI workflows âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── CI workflows ─────────────────────────────────────────────────────────────
 w('.github/workflows/pr.yml',
 `# ≈ Reference Jenkinsfile-android-feature-dev.groovy
 # Runs P1 smoke on every pull request, 2 shards in parallel.
-name: PR â¢ P1 Smoke
+name: PR • P1 Smoke
 on:
   pull_request:
     branches: [ main ]
@@ -220,8 +220,8 @@ jobs:
 `);
 w('.github/workflows/nightly.yml',
 `# ≈ Reference Jenkinsfile-android-qe-multi-threaded-dynamic.groovy
-# Runs the full P2 regression on cron, 4 shards Ã 2 projects.
-name: Nightly â¢ P2 Regression
+# Runs the full P2 regression on cron, 4 shards × 2 projects.
+name: Nightly • P2 Regression
 on:
   schedule: [ { cron: '0 4 * * *' } ]
   workflow_dispatch:
@@ -252,7 +252,7 @@ jobs:
 w('.github/workflows/rc.yml',
 `# ≈ Reference Jenkinsfile-android-qe-rc-trigger.groovy
 # Runs when a release candidate tag is pushed.
-name: RC â¢ Full suite
+name: RC • Full suite
 on:
   push:
     tags: [ 'v*' ]
@@ -269,7 +269,7 @@ jobs:
       - run: npx playwright test
 `);
 
-// ââ Docker âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── Docker ───────────────────────────────────────────────────────────────────
 w('Dockerfile',
 `# Mirrors the reference suite's runner image. Pinned Playwright image includes browsers.
 FROM mcr.microsoft.com/playwright:v1.49.0-jammy
@@ -291,33 +291,33 @@ services:
       - ./test-results:/work/test-results
 `);
 w('mise.toml',
-`# = reference mise.toml â pin tool versions for all contributors.
+`# = reference mise.toml — pin tool versions for all contributors.
 [tools]
 node = "20.18.1"
 `);
 w('scripts/pre-validation.sh',
 `#!/usr/bin/env bash
-# = reference pre-validation.sh â fast checks run before heavy test invocations.
+# = reference pre-validation.sh — fast checks run before heavy test invocations.
 set -e
 npm run lint || true
 npx tsc --noEmit
 echo "pre-validation: OK"
 `);
 
-// ââ Docs âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── Docs ─────────────────────────────────────────────────────────────────────
 w('docs/architecture.md', `# Architecture\n\nSee README.md for the full Mermaid diagram.\n`);
 w('docs/demo-script.md',
-`# Interview demo â 5 minute script
+`# Interview demo — 5 minute script
 
-1. Open \`README.md\` â point at the architecture diagram + CI badge (10s).
-2. Open \`playwright.config.ts\` â "cross-browser Ã locale matrix, retries, trace on retry" (30s).
-3. Open \`src/testSteps/base/UITestBase.ts\` â "this is my UITestBase.kt from reference, as fixtures" (45s).
-4. Open \`src/testSteps/login/P1LoginTests.spec.ts\` â "P1 tag, Jira annotation, step-wrapped actions" (45s).
+1. Open \`README.md\` — point at the architecture diagram + CI badge (10s).
+2. Open \`playwright.config.ts\` — "cross-browser × locale matrix, retries, trace on retry" (30s).
+3. Open \`src/testSteps/base/UITestBase.ts\` — "this is my UITestBase.kt from reference, as fixtures" (45s).
+4. Open \`src/testSteps/login/P1LoginTests.spec.ts\` — "P1 tag, Jira annotation, step-wrapped actions" (45s).
 5. Run: \`npm run test:p1 -- --project=chromium-en-US\` (60s).
-6. Break a selector â \`npm test\` â open HTML report â show screenshot + video + trace (90s).
-7. Open \`.github/workflows/pr.yml\` â "sharded matrix, artifacts uploaded" (30s).
+6. Break a selector → \`npm test\` → open HTML report → show screenshot + video + trace (90s).
+7. Open \`.github/workflows/pr.yml\` — "sharded matrix, artifacts uploaded" (30s).
 
-Total â 5:20. Every click lands on a different interview signal.
+Total ≈ 5:20. Every click lands on a different interview signal.
 `);
 w('docs/concept-coverage.md',
 `# Playwright concept coverage matrix
@@ -325,7 +325,7 @@ w('docs/concept-coverage.md',
 | # | Concept | Lives in |
 |--|--|--|
 | 1 | Custom fixtures | src/testSteps/base/UITestBase.ts |
-| 2 | Projects Ã locale matrix | playwright.config.ts |
+| 2 | Projects × locale matrix | playwright.config.ts |
 | 3 | Retries | playwright.config.ts + base/rules/RetryTestRule.ts |
 | 4 | Trace / screenshot / video | playwright.config.ts use: {} |
 | 5 | Tags @P1 @P2 @smoke @regression | every spec |
@@ -347,7 +347,7 @@ w('docs/concept-coverage.md',
 | 21 | Visual regression toHaveScreenshot | visual-baselines/ (Evening 3) |
 | 22 | Accessibility (axe) | src/accessibility/AccessibilityCheck.ts (Evening 3) |
 | 23 | Component tests (experimental) | tests/ct/ (stretch) |
-| â¦ | 30+ more concepts documented over Evenings 2â4 | â |
+| … | 30+ more concepts documented over Evenings 2–4 | — |
 `);
 
 console.log('\nAll remaining placeholders written.');

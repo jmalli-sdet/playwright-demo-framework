@@ -2,10 +2,10 @@
 #
 # Ad-hoc coverage run
 #   - Manual trigger from the Actions tab.
-#   - Lets anyone pick a grep expression, a project, and a shard count â
+#   - Lets anyone pick a grep expression, a project, and a shard count —
 #     useful for pre-merge impact runs and for reproducing a CI flake locally.
 #
-name: Ad-hoc â¢ Coverage
+name: Ad-hoc • Coverage
 
 on:
   workflow_dispatch:
