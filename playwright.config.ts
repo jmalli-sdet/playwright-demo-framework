@@ -36,6 +36,22 @@ export default defineConfig({
     timeout: 90_000,                          // per-test
     expect: { timeout: 10_000, toHaveScreenshot: { maxDiffPixels: 50 } },
 
+    // Visual-baseline bootstrap policy.
+    //
+    // Playwright's default behaviour on a missing `toHaveScreenshot` baseline
+    // is to write the actual as the new baseline AND fail the test. That turns
+    // every first run on a new OS × project combination (e.g. the very first
+    // Linux CI shard, or a newly-added browser project) into a hard CI failure
+    // even though the test itself did nothing wrong.
+    //
+    // `'missing'` keeps visual regression honest where it matters — if a
+    // baseline already exists, we still pixel-diff against it — while letting
+    // the first run on a new platform self-bootstrap instead of red-flagging
+    // the whole shard. To intentionally refresh committed baselines, use the
+    // `.github/workflows/update-baselines.yml` workflow (it runs with
+    // `--update-snapshots` and commits the regenerated PNGs back to the branch).
+    updateSnapshots: 'missing',
+
     // Runs ONCE before any project — bootstraps the P1 demo account via REST.
     globalSetup: require.resolve('./tests/global.setup.ts'),
 
