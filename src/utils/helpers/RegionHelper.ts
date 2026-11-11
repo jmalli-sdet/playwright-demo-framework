@@ -2,7 +2,7 @@
 //  RegionHelper.ts
 //  = MultiRegionRoutingSetupHelper.kt + regionSetUp()
 //
-//  Nike's regionSetUp() switches the app to the correct brand/locale/geo before
+//  the reference suite's regionSetUp() switches the app to the correct brand/locale/geo before
 //  a test. In Playwright the browser context already has `locale` + `timezoneId`
 //  set via the project; this helper layers in a cookie-based region marker so
 //  AUT-side feature flags behave consistently.

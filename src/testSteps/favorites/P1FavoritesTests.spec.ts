@@ -1,6 +1,6 @@
 //
 //  P1FavoritesTests.spec.ts
-//  = Nike P1FavoritesTests.kt
+//  = reference P1FavoritesTests.kt
 //
 //  Signed-in user filters the catalogue by brand — the AUT's closest analog to
 //  a "my favorite brands" feature. Exercises:

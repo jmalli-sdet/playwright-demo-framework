@@ -2,7 +2,7 @@
 //  DisabledTestRule.ts
 //  = DisabledTestRule.kt + @Disabled annotation
 //
-//  Skips tests tagged @disabled or @fixme — mirrors Nike's DisabledTestRule
+//  Skips tests tagged @disabled or @fixme — mirrors the reference suite's DisabledTestRule
 //  which honors the @Disabled annotation on test methods.
 //
 

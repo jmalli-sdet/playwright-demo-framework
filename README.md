@@ -1,6 +1,6 @@
 # Playwright E-Commerce Automation Framework
 
-> Industry-grade Playwright + TypeScript framework whose **code structure mirrors the Nike App Android automation suite 1:1** (`testSteps/<area>/<AreaSteps|P1AreaTests|P2AreaTests>`, `base/UITestBase + base/rules/`, `utils/{annotations, api/clients, helpers, reporting}`, `resources/`, `testSuites/`).
+> Industry-grade Playwright + TypeScript framework whose **code structure mirrors a prior enterprise Android automation suite 1:1** (`testSteps/<area>/<AreaSteps|P1AreaTests|P2AreaTests>`, `base/UITestBase + base/rules/`, `utils/{annotations, api/clients, helpers, reporting}`, `resources/`, `testSuites/`).
 > Target application under test: **[automationexercise.com](https://automationexercise.com)** (full storefront + public REST API).
 
 ![tests](https://img.shields.io/badge/tests-playwright-45ba4b)
@@ -11,9 +11,9 @@
 
 ## Why this framework exists
 
-I built this to demonstrate that the mobile-automation architecture I run at Nike (Kotlin + Espresso + Compose on Android, Swift + XCUITest on iOS) **translates directly to web** without losing any of the senior-SDET patterns: layered fixtures, API-driven preconditioning, cross-browser × locale project matrices, sharded CI, visual + a11y + perf coverage, and custom reporters wired to Jira / Slack.
+I built this to demonstrate that the mobile-automation architecture I run in a prior role (Kotlin + Espresso + Compose on Android, Swift + XCUITest on iOS) **translates directly to web** without losing any of the senior-SDET patterns: layered fixtures, API-driven preconditioning, cross-browser × locale project matrices, sharded CI, visual + a11y + perf coverage, and custom reporters wired to Jira / Slack.
 
-Every Nike file has a named counterpart here — see `docs/architecture.md`.
+Every reference file has a named counterpart here — see `docs/architecture.md`.
 
 ## Architecture
 
@@ -31,7 +31,7 @@ flowchart TB
         Steps["loginSteps · checkoutSteps · … (page-object fixtures)"]
     end
 
-    subgraph Features["src/testSteps/<area>/ (= testSteps/<area>/ in Nike)"]
+    subgraph Features["src/testSteps/<area>/ (= testSteps/<area>/ in reference)"]
         Pages["AreaSteps.ts        (= AreaSteps.kt)"]
         P1["P1AreaTests.spec.ts @P1 @smoke"]
         P2["P2AreaTests.spec.ts @P2 @regression"]
@@ -58,7 +58,7 @@ flowchart TB
     Features --> CI
 ```
 
-## Repo layout (1:1 mirror of the Nike Android suite)
+## Repo layout (1:1 mirror of the the reference Android suite)
 
 ```text
 src/
@@ -139,9 +139,9 @@ See [`docs/concept-coverage.md`](docs/concept-coverage.md) — 50+ concepts, eac
 
 Evenings 2–4 bring: `storageState` auth setup project, 4 full feature slices, visual + a11y + axe, `page.route()` stubbing, `page.clock` mocking, custom Documentation / Jira / Slack reporters, Allure trends.
 
-## Nike → Playwright correspondence (highlights)
+## reference → Playwright correspondence (highlights)
 
-| Nike Android | Here |
+| the reference Android | Here |
 |---|---|
 | `UITestBase.kt` + `RuleChain.outerRule(…).around(…)` | `src/testSteps/base/UITestBase.ts` (fixture composition) |
 | `@Rule RetryTestRule(2)` | `retries: 2` in `playwright.config.ts` + `withRetries()` helper |

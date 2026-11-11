@@ -1,6 +1,6 @@
 //
 //  AccessibilityCheck.ts
-//  = accessibility/ in Nike (Espresso's AccessibilityChecks)
+//  = accessibility/ in reference (Espresso's AccessibilityChecks)
 //
 //  Wrapper over @axe-core/playwright. Call from inside a test:
 //

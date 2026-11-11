@@ -1,6 +1,6 @@
 //
 //  P2MemberHomeTests.spec.ts   (placeholder — populated in Evening 2)
-//  = Nike P2MemberHomeTests.kt
+//  = reference P2MemberHomeTests.kt
 //
 import { test } from '../base/UITestBase';
 

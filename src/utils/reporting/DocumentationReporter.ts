@@ -108,7 +108,7 @@ export default class DocumentationReporter implements Reporter {
     // ────────────────────────────────────────────────────────────────────
     // Slack webhook integration (opt-in via SLACK_WEBHOOK env var).
     //
-    // Nike analog: DocumentationReportHelper.kt → SlackNotifier.kt. Posts a
+    // Reference analog: DocumentationReportHelper.kt → SlackNotifier.kt. Posts a
     // compact one-liner per CI run so QE/dev leads see status in-channel
     // without having to open Jenkins.
     // ────────────────────────────────────────────────────────────────────

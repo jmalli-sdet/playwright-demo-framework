@@ -12,7 +12,7 @@ import { test } from '@playwright/test';
 
 export class LoginSteps {
 
-    // ── Locators (= private val withId(R.id.xxx) in Nike) ────────────────────
+    // ── Locators (= private val withId(R.id.xxx) in reference) ────────────────────
     private readonly loginEmailInput: Locator;
     private readonly loginPasswordInput: Locator;
     private readonly loginButton: Locator;

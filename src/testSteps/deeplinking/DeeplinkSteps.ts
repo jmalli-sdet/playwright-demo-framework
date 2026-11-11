@@ -25,7 +25,7 @@ export class DeeplinkSteps {
 
     /**
      * Opens a URL in a new tab via window.open and returns the popup Page.
-     * Equivalent of Nike's deeplink navigator that tracks the resulting
+     * Equivalent of the reference suite's deeplink navigator that tracks the resulting
      * activity. Playwright pattern: `context.waitForEvent('page')`.
      */
     async openInNewTab(url: string, context: BrowserContext): Promise<Page> {

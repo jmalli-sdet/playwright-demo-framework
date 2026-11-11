@@ -1,4 +1,4 @@
-# ≈ Nike Jenkinsfile-android-qe-coverage-trigger.groovy
+# ≈ Reference Jenkinsfile-android-qe-coverage-trigger.groovy
 #
 # Ad-hoc coverage run
 #   - Manual trigger from the Actions tab.

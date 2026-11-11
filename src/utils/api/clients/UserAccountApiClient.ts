@@ -3,7 +3,7 @@
 //  = UserAccountApiClient.kt
 //
 //  Create / delete accounts against automationexercise.com. Used in Evening 2 by
-//  tests/global.setup.ts to seed the P1/P2 users exactly as Nike's
+//  tests/global.setup.ts to seed the P1/P2 users exactly as the reference suite's
 //  pre-test account bootstrap does.
 //
 

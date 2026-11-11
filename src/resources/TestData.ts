@@ -2,7 +2,7 @@
 //  TestData.ts
 //  = TestData.kt
 //
-//  Centralized test-data store. Mirrors Nike's TestData.kt which exposes
+//  Centralized test-data store. Mirrors the reference suite's TestData.kt which exposes
 //  getP1User(UserType.BILLING), getCurrentLocale(), country helpers, etc.
 //
 
@@ -25,7 +25,7 @@ export const P1_DEMO_ACCOUNT = new TestAccount({
 
 export class TestData {
 
-    // ── Locale constants (= TestData.KO_KR in Nike) ──────────────────────────
+    // ── Locale constants (= TestData.KO_KR in reference) ──────────────────────────
     static readonly EN_US = 'en-US';
     static readonly JA_JP = 'ja-JP';
     static readonly KO_KR = 'ko-KR';

@@ -2,7 +2,7 @@
 //  BotProtectionHeaderRule.ts
 //  = BotProtectionHeaderRule.kt
 //
-//  Adds an extra header on every request — Nike uses this to bypass Akamai
+//  Adds an extra header on every request — reference uses this to bypass Akamai
 //  bot protection during automated test runs. Here it's a no-op-by-default
 //  header plus a UA override, to demonstrate the pattern.
 //

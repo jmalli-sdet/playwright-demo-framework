@@ -1,4 +1,4 @@
-# ≈ Nike Jenkinsfile-android-qe-multi-threaded-dynamic.groovy
+# ≈ Reference Jenkinsfile-android-qe-multi-threaded-dynamic.groovy
 #
 # Nightly • P2 Regression
 #   - Full @P2 across (chromium-en-US, webkit-en-US, chromium-fr-FR) × 4 shards.

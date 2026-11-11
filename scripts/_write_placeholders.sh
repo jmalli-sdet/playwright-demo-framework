@@ -25,20 +25,20 @@ for entry in "${FEATURES[@]}"; do
   cat > "$d/${steps}.ts" <<PLACEHOLDER
 //
 //  ${steps}.ts   (placeholder — populated in Evening 2)
-//  = Nike ${steps}.kt
+//  = reference ${steps}.kt
 //
 import type { Page } from '@playwright/test';
 
 export class ${steps} {
     constructor(private readonly page: Page) {}
-    // TODO: port Nike ${steps}.kt actions + verifications.
+    // TODO: port reference ${steps}.kt actions + verifications.
 }
 PLACEHOLDER
 
   cat > "$d/P1${testBase}Tests.spec.ts" <<PLACEHOLDER
 //
 //  P1${testBase}Tests.spec.ts   (placeholder — populated in Evening 2)
-//  = Nike P1${testBase}Tests.kt
+//  = reference P1${testBase}Tests.kt
 //
 import { test } from '../base/UITestBase';
 

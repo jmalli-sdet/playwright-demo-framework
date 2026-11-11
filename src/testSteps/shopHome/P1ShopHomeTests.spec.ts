@@ -1,6 +1,6 @@
 //
 //  P1ShopHomeTests.spec.ts
-//  = Nike P1ShopHomeTests.kt
+//  = reference P1ShopHomeTests.kt
 //
 //  Anonymous Shop Home P1 smoke:
 //    • Category sidebar drill-in works and lands on the right gridwall

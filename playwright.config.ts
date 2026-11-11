@@ -2,8 +2,8 @@
 //  playwright.config.ts
 //  playwright-demo-framework
 //
-//  Equivalent of Nike App Android app/build.gradle test config + build flavors.
-//  Projects below mirror Nike's build-flavor × locale matrix.
+//  Equivalent of a prior enterprise Android app build.gradle test config + build flavors.
+//  Projects below mirror the reference suite's build-flavor × locale matrix.
 //
 
 import { defineConfig, devices } from '@playwright/test';
@@ -71,7 +71,7 @@ export default defineConfig({
 
     // ────────────────────────────────────────────────────────────────────
     // Projects matrix: browser × locale × device
-    // Mirrors Nike build flavors (world / china) + per-locale annotations.
+    // Mirrors reference build flavors (world / china) + per-locale annotations.
     // Run with --project=<name>, or run all with just `npm test`.
     // ────────────────────────────────────────────────────────────────────
     projects: [

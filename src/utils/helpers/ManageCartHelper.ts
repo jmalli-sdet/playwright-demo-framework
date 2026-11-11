@@ -1,6 +1,6 @@
 //
 //  ManageCartHelper.ts   (placeholder — populated in Evening 2/3)
-//  = Nike ManageCartHelper.kt
+//  = reference ManageCartHelper.kt
 //
 //  High-level cart composition across API + UI.
 //

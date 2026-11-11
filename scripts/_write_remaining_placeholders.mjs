@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-/* Writes the remaining Nike-mirrored structural placeholders. */
-const fs = require('fs');
-const path = require('path');
+/* Writes the remaining reference-mirrored structural placeholders. */
+import fs from 'node:fs';
+import path from 'node:path';
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = path.resolve(import.meta.dirname, '..');
 const w = (rel, body) => {
     const p = path.join(ROOT, rel);
     fs.mkdirSync(path.dirname(p), { recursive: true });
@@ -11,9 +11,9 @@ const w = (rel, body) => {
     console.log('  +', rel);
 };
 
-const stub = (className, nikeEq, desc) => `//
+const stub = (className, refEq, desc) => `//
 //  ${className}.ts   (placeholder — populated in Evening 2/3)
-//  = Nike ${nikeEq}
+//  = reference ${refEq}
 //
 //  ${desc}
 //
@@ -34,11 +34,11 @@ const apiClients = [
     ['ProductWallApiClient',     'ProductWallApiClient.kt',     'Query search/gridwall results via REST.'],
     ['OnboardingApiClient',      'OnboardingApiClient.kt',      'Drive onboarding state transitions server-side.'],
 ];
-for (const [cls, nike, desc] of apiClients) {
+for (const [cls, refEq, desc] of apiClients) {
     w(`src/utils/api/clients/${cls}.ts`,
 `//
 //  ${cls}.ts   (placeholder — populated in Evening 2)
-//  = Nike ${nike}
+//  = reference ${refEq}
 //  ${desc}
 //
 import type { APIRequestContext } from '@playwright/test';
@@ -46,20 +46,20 @@ import { ApiClientBase } from './ApiClientBase';
 
 export class ${cls} extends ApiClientBase {
     constructor(request: APIRequestContext) { super(request); }
-    // TODO: port Nike ${nike} methods.
+    // TODO: port reference ${refEq} methods.
 }
 `);
 }
 
 // ── API interfaces + models ───────────────────────────────────────────────────
 w('src/utils/api/interfaces/IApiClient.ts',
-`// = api/interfaces/ in Nike
+`// = api/interfaces/ in the reference suite
 export interface IApiClient {
     readonly baseUrl: string;
 }
 `);
 ['User', 'Cart', 'Product', 'Address'].forEach((m) => {
-    w(`src/utils/api/models/${m}.ts`, `// = api/models/${m} in Nike\nexport interface ${m} { readonly id: string; }\n`);
+    w(`src/utils/api/models/${m}.ts`, `// = api/models/${m} in the reference suite\nexport interface ${m} { readonly id: string; }\n`);
 });
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -74,8 +74,8 @@ const helpers = [
     ['ManageCartHelper',     'ManageCartHelper.kt',     'High-level cart composition across API + UI.'],
     ['SafeZoneHelper',       'SafeZoneHelper.kt',       'Viewport-safe tapping on mobile emulation.'],
 ];
-for (const [cls, nike, desc] of helpers) {
-    w(`src/utils/helpers/${cls}.ts`, stub(cls, nike, desc));
+for (const [cls, refEq, desc] of helpers) {
+    w(`src/utils/helpers/${cls}.ts`, stub(cls, refEq, desc));
 }
 
 // ── Reporters ────────────────────────────────────────────────────────────────
@@ -87,13 +87,13 @@ const reporters = [
     ['SlackReporter',         '(new)',                         'Custom reporter: posts a run summary to Slack.'],
     ['AllureSetup',           '(new)',                         'allure-playwright wiring.'],
 ];
-for (const [cls, nike, desc] of reporters) {
-    w(`src/utils/reporting/${cls}.ts`, stub(cls, nike, desc));
+for (const [cls, refEq, desc] of reporters) {
+    w(`src/utils/reporting/${cls}.ts`, stub(cls, refEq, desc));
 }
 
 // ── UI / networkrewriter ─────────────────────────────────────────────────────
 w('src/ui/networkrewriter/NetworkRewriter.ts',
-`// = ui/networkrewriter/ in Nike — wraps page.route() so feature specs can
+`// = ui/networkrewriter/ in reference — wraps page.route() so feature specs can
 // rewrite responses without knowing Playwright plumbing.
 import type { BrowserContext } from '@playwright/test';
 
@@ -105,7 +105,7 @@ export class NetworkRewriter {
 
 // ── Extensions ───────────────────────────────────────────────────────────────
 w('src/utils/extensions/ExpectExtensions.ts',
-`// Custom matchers (= TaggedAssert in Nike).
+`// Custom matchers (= TaggedAssert in reference).
 // Evening 3 will add: expect.extend({ toHaveCurrencyFormat(...) }).
 export {};
 `);
@@ -116,14 +116,14 @@ export {};
 
 // ── Accessibility ────────────────────────────────────────────────────────────
 w('src/accessibility/AccessibilityCheck.ts',
-`// = accessibility/ in Nike — axe-core wrapper, added in Evening 3.
+`// = accessibility/ in reference — axe-core wrapper, added in Evening 3.
 // npm i -D @axe-core/playwright
 export async function runAccessibilityCheck(/* page: Page, name: string */): Promise<void> {
     // TODO
 }
 `);
 w('src/accessibility/AccessibilitySuppressionsRepository.ts',
-`// = accessibility/AccessibilitySuppressionsRepository in Nike.
+`// = accessibility/AccessibilitySuppressionsRepository in reference.
 export const ACCESSIBILITY_SUPPRESSIONS: Array<{ ruleId: string; reason: string }> = [];
 `);
 
@@ -150,7 +150,7 @@ export class BrowserContextWrappers {
 w('tests/global.setup.ts',
 `//
 //  global.setup.ts   (placeholder — populated in Evening 2)
-//  = Nike pre-test bootstrap
+//  = reference pre-test bootstrap
 //
 //  Evening 2 will: create P1/P2 test users via UserAccountApiClient,
 //  write storageState to .auth/<user>.json, consumed by the chromium-en-US project.
@@ -189,7 +189,7 @@ test.describe('AUT /productsList — @P1 @api', { tag: ['@P1', '@api'] }, () => 
 
 // ── CI workflows ─────────────────────────────────────────────────────────────
 w('.github/workflows/pr.yml',
-`# ≈ Nike Jenkinsfile-android-feature-dev.groovy
+`# ≈ Reference Jenkinsfile-android-feature-dev.groovy
 # Runs P1 smoke on every pull request, 2 shards in parallel.
 name: PR • P1 Smoke
 on:
@@ -219,7 +219,7 @@ jobs:
           retention-days: 7
 `);
 w('.github/workflows/nightly.yml',
-`# ≈ Nike Jenkinsfile-android-qe-multi-threaded-dynamic.groovy
+`# ≈ Reference Jenkinsfile-android-qe-multi-threaded-dynamic.groovy
 # Runs the full P2 regression on cron, 4 shards × 2 projects.
 name: Nightly • P2 Regression
 on:
@@ -250,7 +250,7 @@ jobs:
             test-results/
 `);
 w('.github/workflows/rc.yml',
-`# ≈ Nike Jenkinsfile-android-qe-rc-trigger.groovy
+`# ≈ Reference Jenkinsfile-android-qe-rc-trigger.groovy
 # Runs when a release candidate tag is pushed.
 name: RC • Full suite
 on:
@@ -271,7 +271,7 @@ jobs:
 
 // ── Docker ───────────────────────────────────────────────────────────────────
 w('Dockerfile',
-`# Mirrors Nike's runner image. Pinned Playwright image includes browsers.
+`# Mirrors the reference suite's runner image. Pinned Playwright image includes browsers.
 FROM mcr.microsoft.com/playwright:v1.49.0-jammy
 WORKDIR /work
 COPY package*.json ./
@@ -291,13 +291,13 @@ services:
       - ./test-results:/work/test-results
 `);
 w('mise.toml',
-`# = Nike mise.toml — pin tool versions for all contributors.
+`# = reference mise.toml — pin tool versions for all contributors.
 [tools]
 node = "20.18.1"
 `);
 w('scripts/pre-validation.sh',
 `#!/usr/bin/env bash
-# = Nike pre-validation.sh — fast checks run before heavy test invocations.
+# = reference pre-validation.sh — fast checks run before heavy test invocations.
 set -e
 npm run lint || true
 npx tsc --noEmit
@@ -311,7 +311,7 @@ w('docs/demo-script.md',
 
 1. Open \`README.md\` — point at the architecture diagram + CI badge (10s).
 2. Open \`playwright.config.ts\` — "cross-browser × locale matrix, retries, trace on retry" (30s).
-3. Open \`src/testSteps/base/UITestBase.ts\` — "this is my UITestBase.kt from Nike, as fixtures" (45s).
+3. Open \`src/testSteps/base/UITestBase.ts\` — "this is my UITestBase.kt from reference, as fixtures" (45s).
 4. Open \`src/testSteps/login/P1LoginTests.spec.ts\` — "P1 tag, Jira annotation, step-wrapped actions" (45s).
 5. Run: \`npm run test:p1 -- --project=chromium-en-US\` (60s).
 6. Break a selector → \`npm test\` → open HTML report → show screenshot + video + trace (90s).

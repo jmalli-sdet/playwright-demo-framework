@@ -1,6 +1,6 @@
 //
 //  AllureSetup.ts   (placeholder — populated in Evening 2/3)
-//  = Nike (new)
+//  = reference (new)
 //
 //  allure-playwright wiring.
 //

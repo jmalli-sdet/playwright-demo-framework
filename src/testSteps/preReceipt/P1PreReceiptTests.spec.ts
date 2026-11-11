@@ -1,6 +1,6 @@
 //
 //  P1PreReceiptTests.spec.ts   (placeholder — populated in Evening 2)
-//  = Nike P1PreReceiptTests.kt
+//  = reference P1PreReceiptTests.kt
 //
 import { test } from '../base/UITestBase';
 

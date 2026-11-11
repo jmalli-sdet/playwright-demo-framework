@@ -1,4 +1,4 @@
-# ≈ Nike Jenkinsfile-android-feature-dev.groovy
+# ≈ Reference Jenkinsfile-android-feature-dev.groovy
 #
 # PR • P1 Smoke
 #   - Runs @P1 on 2 shards × chromium-en-US (fast feedback)

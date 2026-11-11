@@ -1,4 +1,4 @@
-# ≈ Nike Jenkinsfile-android-qe-rc-trigger.groovy
+# ≈ Reference Jenkinsfile-android-qe-rc-trigger.groovy
 #
 # RC • Full suite
 #   - Triggered by a `v*` tag push.

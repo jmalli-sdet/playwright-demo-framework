@@ -2,7 +2,7 @@
   "name": "playwright-demo-framework",
   "version": "0.1.0",
   "private": true,
-  "description": "Industry-ready Playwright/TypeScript automation framework — structure mirrors the Nike App Android automation (UITestBase + RuleChain + testSteps/<area>/<Steps|P1|P2>).",
+  "description": "Industry-ready Playwright/TypeScript automation framework — structure mirrors a prior enterprise Android automation suite (UITestBase + RuleChain + testSteps/<area>/<Steps|P1|P2>).",
   "scripts": {
     "test": "playwright test",
     "test:p1": "playwright test --grep @P1",

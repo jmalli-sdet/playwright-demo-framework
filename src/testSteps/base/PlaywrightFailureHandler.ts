@@ -2,7 +2,7 @@
 //  PlaywrightFailureHandler.ts
 //  = EspressoFailureHandler.kt
 //
-//  Centralized "what to do when an action fails" wrapper. In Nike this
+//  Centralized "what to do when an action fails" wrapper. In the reference suite, this
 //  intercepts Espresso's NoMatchingViewException / AmbiguousViewMatcher etc.
 //  In Playwright we wrap an action with a consistent diagnostic: capture
 //  the failing locator's screenshot + computed HTML before rethrowing.

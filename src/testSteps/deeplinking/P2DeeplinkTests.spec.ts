@@ -1,6 +1,6 @@
 //
 //  P2DeeplinkTests.spec.ts   (placeholder — populated in Evening 2)
-//  = Nike P2DeeplinkTests.kt
+//  = reference P2DeeplinkTests.kt
 //
 import { test } from '../base/UITestBase';
 

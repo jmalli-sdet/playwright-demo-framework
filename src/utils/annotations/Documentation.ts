@@ -2,9 +2,9 @@
 //  Documentation.ts
 //  = Documentation.kt
 //
-//  In Nike:
-//      @Documentation(["https://jira.nike.com/browse/ATF-3553",
-//                      "https://jira.nike.com/browse/FAQE-1163"])
+//  In the reference suite:
+//      @Documentation(["https://jira.example.com/browse/ATF-3553",
+//                      "https://jira.example.com/browse/FAQE-1163"])
 //
 //  Here we add one `jira` annotation per link so custom reporters
 //  (DocumentationReporter.ts in Evening 3) can emit a traceability matrix.

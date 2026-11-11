@@ -7,7 +7,7 @@
 //    - route.continue({ headers })
 //    - page.waitForRequest(pattern) — assert that a specific request was made
 //
-//  This is the pattern Nike uses in `OkHttpManager.kt` for driving UI through
+//  This is the pattern reference uses in `OkHttpManager.kt` for driving UI through
 //  canned API states.
 //
 

@@ -2,9 +2,9 @@
 //  UITestBase.ts
 //  playwright-demo-framework
 //
-//  Equivalent of Nike's UITestBase.kt + RuleChain.
+//  Equivalent of the reference suite's UITestBase.kt + RuleChain.
 //
-//  In Nike, @Rule RuleChain composes TestWatcherRule → DisabledTestRule → PdpConfigurationRule →
+//  In the reference suite, @Rule RuleChain composes TestWatcherRule → DisabledTestRule → PdpConfigurationRule →
 //  UrbanAirshipNotificationsRule → BotProtectionHeaderRule, with CoroutineExceptionHandlerRule
 //  as the outermost rule.
 //
@@ -19,7 +19,7 @@
 import { test as base, expect, type Page, type BrowserContext, type APIRequestContext } from '@playwright/test';
 import '../../utils/extensions/ExpectExtensions';  // side-effect import — registers types for custom matchers
 
-// ── Rules (= base/rules/ in Nike) ─────────────────────────────────────────────
+// ── Rules (= base/rules/ in reference) ─────────────────────────────────────────────
 import { applyUncaughtExceptionRule } from './rules/UncaughtExceptionRule';
 import { applyTestWatcherRule }        from './rules/TestWatcherRule';
 import { applyDisabledTestRule }       from './rules/DisabledTestRule';
@@ -27,14 +27,14 @@ import { applyPdpConfigurationRule }   from './rules/PdpConfigurationRule';
 import { applyNotificationsRule }      from './rules/NotificationsRule';
 import { applyBotProtectionHeaderRule } from './rules/BotProtectionHeaderRule';
 
-// ── Resources (= resources/ in Nike) ──────────────────────────────────────────
+// ── Resources (= resources/ in reference) ──────────────────────────────────────────
 import { TestData } from '../../resources/TestData';
 
-// ── API clients (= utils/api/clients/ in Nike) ───────────────────────────────
+// ── API clients (= utils/api/clients/ in reference) ───────────────────────────────
 import { AuthorizationApiClient } from '../../utils/api/clients/AuthorizationApiClient';
 import { UserAccountApiClient }    from '../../utils/api/clients/UserAccountApiClient';
 
-// ── Feature steps (= testSteps/<area>/<Area>Steps in Nike) ───────────────────
+// ── Feature steps (= testSteps/<area>/<Area>Steps in reference) ───────────────────
 import { LoginSteps }            from '../login/LoginSteps';
 import { SearchSteps }           from '../search/SearchSteps';
 import { ProductDisplaySteps }   from '../productDetail/ProductDisplaySteps';
@@ -56,7 +56,7 @@ import { NetworkHelper } from '../../utils/helpers/NetworkHelper';
 /**
  * Fixture set exposed to every test in the framework.
  *
- * Direct Nike analog:
+ * Direct Reference analog:
  *     protected val testData = TestData()
  *     protected val device = DeviceWrappers()
  *     protected val loginSteps = LoginSteps()

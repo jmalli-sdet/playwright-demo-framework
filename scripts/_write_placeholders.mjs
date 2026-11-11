@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-/* Generates feature-folder placeholders so the Nike-mirrored tree is visible from day 1. */
-const fs = require('fs');
-const path = require('path');
+/* Generates feature-folder placeholders so the reference-mirrored tree is visible from day 1. */
+import fs from 'node:fs';
+import path from 'node:path';
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = path.resolve(import.meta.dirname, '..');
 
 const FEATURES = [
     ['onboarding',              'OnboardingSteps',              'Onboarding'],
@@ -23,19 +23,19 @@ const FEATURES = [
 
 const stepsTemplate = (steps) => `//
 //  ${steps}.ts   (placeholder — populated in Evening 2)
-//  = Nike ${steps}.kt
+//  = reference ${steps}.kt
 //
 import type { Page } from '@playwright/test';
 
 export class ${steps} {
     constructor(private readonly page: Page) {}
-    // TODO: port Nike ${steps}.kt actions + verifications.
+    // TODO: port reference ${steps}.kt actions + verifications.
 }
 `;
 
 const specTemplate = (area, tier) => `//
 //  P${tier}${area}Tests.spec.ts   (placeholder — populated in Evening 2)
-//  = Nike P${tier}${area}Tests.kt
+//  = reference P${tier}${area}Tests.kt
 //
 import { test } from '../base/UITestBase';
 
