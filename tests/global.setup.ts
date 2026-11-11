@@ -6,7 +6,7 @@
 //  (via UITestBase fixtures + the `setup` project) can rely on the account
 //  existing. If the account already exists (second run), we silently continue.
 //
-//  Direct Nike analog: the preTestLoginBySpecificAccount() + API-seed phase
+//  Direct Reference analog: the preTestLoginBySpecificAccount() + API-seed phase
 //  in UITestBase.kt, except here we do it once per run instead of once per test.
 //
 

@@ -1,4 +1,4 @@
-// = ui/networkrewriter/ in Nike — wraps page.route() so feature specs can
+// = ui/networkrewriter/ in reference — wraps page.route() so feature specs can
 // rewrite responses without knowing Playwright plumbing.
 import type { BrowserContext } from '@playwright/test';
 

@@ -1,6 +1,6 @@
 //
 //  P2OnboardingTests.spec.ts   (placeholder — populated in Evening 2)
-//  = Nike P2OnboardingTests.kt
+//  = reference P2OnboardingTests.kt
 //
 import { test } from '../base/UITestBase';
 

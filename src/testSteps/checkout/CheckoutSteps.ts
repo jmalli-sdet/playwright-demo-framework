@@ -2,7 +2,7 @@
 //  CheckoutSteps.ts
 //  = CheckoutSteps.kt
 //
-//  End-to-end buy-flow helper. Mirrors Nike's CheckoutSteps.kt pattern of one
+//  End-to-end buy-flow helper. Mirrors the reference suite's CheckoutSteps.kt pattern of one
 //  method per screen with its own test.step() for traceability.
 //
 //  Playwright concepts covered: navigation, forms, download event handling,

@@ -3,7 +3,7 @@
 //  = ApiClientBase.kt
 //
 //  Base class for every REST client. Wraps APIRequestContext so subclasses
-//  only declare endpoint-specific methods. In Nike this centralises OkHttp
+//  only declare endpoint-specific methods. In the reference suite, this centralises OkHttp
 //  setup + interceptors + auth header injection.
 //
 

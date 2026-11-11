@@ -2,7 +2,7 @@
 //  P1LoginTests.spec.ts
 //  = P1LoginTests.kt
 //
-//  Smoke-tier login coverage. Mirrors Nike's P1LoginTests.kt — one @Test
+//  Smoke-tier login coverage. Mirrors the reference suite's P1LoginTests.kt — one @Test
 //  per @Description + @Documentation annotation, running under the
 //  UITestBase (= fixture base) with a @get:Rule chain.
 //

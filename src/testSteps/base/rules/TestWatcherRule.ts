@@ -3,7 +3,7 @@
 //  = TestWatcherRule.kt + ScreenshotTaker.kt
 //
 //  On failure: attach a final full-page screenshot, the DOM snapshot, and
-//  console-log tail. Mirrors what Nike's TestWatcherRule + ScreenshotTaker do.
+//  console-log tail. Mirrors what the reference suite's TestWatcherRule + ScreenshotTaker do.
 //
 
 import type { Page, TestInfo } from '@playwright/test';

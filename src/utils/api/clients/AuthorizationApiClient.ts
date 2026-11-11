@@ -4,7 +4,7 @@
 //
 //  Thin wrapper on automationexercise.com's /verifyLogin endpoint.
 //  Lets specs validate credentials without driving the UI — same pattern as
-//  Nike's `AuthorizationApiClient.preTestLogin(testAccount)`.
+//  the reference suite's `AuthorizationApiClient.preTestLogin(testAccount)`.
 //
 
 import type { APIRequestContext } from '@playwright/test';

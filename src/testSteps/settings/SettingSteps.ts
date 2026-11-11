@@ -3,7 +3,7 @@
 //  = SettingSteps.kt + the Contact-Us flow
 //
 //  Covers the /contact_us form, including file upload via setInputFiles —
-//  the direct equivalent of Nike's GalleryIntentComposer.kt gallery picker.
+//  the direct equivalent of the reference suite's GalleryIntentComposer.kt gallery picker.
 //
 
 import { expect, type Page, type Locator } from '@playwright/test';

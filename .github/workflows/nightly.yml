@@ -1,11 +1,11 @@
-# ≈ Nike Jenkinsfile-android-qe-multi-threaded-dynamic.groovy
+# ≈ Reference Jenkinsfile-android-qe-multi-threaded-dynamic.groovy
 #
-# Nightly • P2 Regression
-#   - Full @P2 across (chromium-en-US, webkit-en-US, chromium-fr-FR) × 4 shards.
+# Nightly â¢ P2 Regression
+#   - Full @P2 across (chromium-en-US, webkit-en-US, chromium-fr-FR) Ã 4 shards.
 #   - All shards emit blob reports; `merge` job stitches them + uploads Allure.
 #   - On failure, posts a Slack webhook message (if SLACK_WEBHOOK secret set).
 #
-name: Nightly • P2 Regression
+name: Nightly â¢ P2 Regression
 
 on:
   schedule: [ { cron: '0 4 * * *' } ]  # 04:00 UTC
@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   regression:
-    name: ${{ matrix.project }} • shard ${{ matrix.shard }}/4
+    name: ${{ matrix.project }} â¢ shard ${{ matrix.shard }}/4
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
@@ -89,7 +89,7 @@ jobs:
           pattern: blob-report-*
           merge-multiple: true
 
-      - name: Merge blobs → HTML
+      - name: Merge blobs â HTML
         run: npx playwright merge-reports --reporter html,./src/utils/reporting/DocumentationReporter.ts
              ./all-blob-reports
 
@@ -107,7 +107,7 @@ jobs:
 
       - name: Publish nightly summary
         run: |
-          echo "### Nightly • P2 Regression" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Nightly â¢ P2 Regression" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           if [ -f reports/traceability-matrix.md ]; then
             tail -n 20 reports/traceability-matrix.md >> "$GITHUB_STEP_SUMMARY"
@@ -119,5 +119,5 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         run: |
           curl -sS -X POST -H 'content-type: application/json' \
-               --data "{\"text\":\":red_circle: Nightly P2 regression failed — ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+               --data "{\"text\":\":red_circle: Nightly P2 regression failed â ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
                "$SLACK_WEBHOOK"

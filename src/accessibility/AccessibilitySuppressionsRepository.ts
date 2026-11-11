@@ -1,6 +1,6 @@
 //
 //  AccessibilitySuppressionsRepository.ts
-//  = Nike's equivalent registry of allow-listed a11y rule violations.
+//  = the reference suite's equivalent registry of allow-listed a11y rule violations.
 //
 //  automationexercise.com is a demo site and has many pre-existing WCAG
 //  violations. We suppress the known offenders here so our scan surfaces only

@@ -1,2 +1,2 @@
-// = api/models/Cart in Nike
+// = api/models/Cart in the reference suite
 export interface Cart { readonly id: string; }

@@ -2,7 +2,7 @@
 //  Disabled.ts
 //  = Disabled.kt
 //
-//  Nike: @Disabled("JIRA-1234 regression") → DisabledTestRule honors it.
+//  reference: @Disabled("JIRA-1234 regression") → DisabledTestRule honors it.
 //  Here: add `@disabled` to the test tag list in test.describe or call this helper.
 //
 

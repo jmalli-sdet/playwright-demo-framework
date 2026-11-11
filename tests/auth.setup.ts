@@ -9,7 +9,7 @@
 //
 //      test.use({ storageState: AUTH_STATE_FILE });
 //
-//  Mirrors Nike's `preTestLoginBySpecificAccount(testAccount)` call, except
+//  Mirrors the reference suite's `preTestLoginBySpecificAccount(testAccount)` call, except
 //  it happens once and is reused — which is faster and far more stable.
 //
 

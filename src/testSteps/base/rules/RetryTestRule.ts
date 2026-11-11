@@ -4,7 +4,7 @@
 //
 //  Playwright's retry mechanism is configured at playwright.config.ts level
 //  (`retries: 2`). This helper lets a *single* test opt into a different
-//  retry count, mirroring Nike's per-test retry override.
+//  retry count, mirroring the reference suite's per-test retry override.
 //
 //  Usage:
 //    import { withRetries } from '../../testSteps/base/rules/RetryTestRule';

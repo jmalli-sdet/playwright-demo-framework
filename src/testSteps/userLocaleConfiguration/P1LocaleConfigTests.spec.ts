@@ -1,13 +1,13 @@
 //
 //  P1LocaleConfigTests.spec.ts
-//  = Nike P1LocaleConfigTests.kt
+//  = reference P1LocaleConfigTests.kt
 //
 //  Cross-project locale smoke. Playwright runs this spec under every project
 //  in the matrix (chromium-en-US, webkit-en-US, chromium-fr-FR, …) — we read
 //  the project's locale from testInfo and assert the browser context + outgoing
 //  request headers agree with it.
 //
-//  This is the Playwright equivalent of Nike's per-market build-flavor coverage.
+//  This is the Playwright equivalent of the reference suite's per-market build-flavor coverage.
 //    10|
 import { test } from '../base/UITestBase';
 

@@ -2,7 +2,7 @@
 //  Description.ts
 //  = Description.kt
 //
-//  In Nike:
+//  In the reference suite:
 //      @Retention(RUNTIME) @Target(FUNCTION)
 //      annotation class Description(val testDescription: String)
 //

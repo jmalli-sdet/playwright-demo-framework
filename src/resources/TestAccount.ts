@@ -1,6 +1,6 @@
 //
 //  TestAccount.ts
-//  = TestAccount in Nike's resources/TestData.kt
+//  = TestAccount in the reference suite's resources/TestData.kt
 //
 
 export enum UserType {

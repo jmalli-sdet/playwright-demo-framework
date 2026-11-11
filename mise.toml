@@ -1,3 +1,3 @@
-# = Nike mise.toml — pin tool versions for all contributors.
+# = reference mise.toml — pin tool versions for all contributors.
 [tools]
 node = "20.18.1"

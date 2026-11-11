@@ -1,6 +1,6 @@
 //
 //  ExpectExtensions.ts
-//  Custom matchers (= TaggedAssert in Nike).
+//  Custom matchers (= TaggedAssert in reference).
 //
 //  Imported once in playwright.config.ts to make the matchers available
 //  globally. Usage:

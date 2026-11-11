@@ -1,4 +1,4 @@
-# ≈ Nike Jenkinsfile-android-qe-baseline-refresh.groovy
+# ≈ Reference Jenkinsfile-android-qe-baseline-refresh.groovy
 #
 # Update visual baselines
 #   - Manual trigger only (workflow_dispatch).

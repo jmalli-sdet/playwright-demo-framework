@@ -20,7 +20,7 @@
 ## 1.1  The 30-second pitch
 
 > *"It's a Playwright + TypeScript UI-and-API automation framework whose folder
-> structure and base-class design mirror the Nike App Android automation
+> structure and base-class design mirror a prior enterprise Android automation suite
 > framework, so I can walk from one job to the other without mental overhead.
 > It targets `automationexercise.com`, runs on 4 browser/locale projects,
 > shards across GitHub Actions, produces an HTML report plus a custom
@@ -30,9 +30,9 @@
 That one paragraph is your opening. The rest of this document is the detail
 to back it up.
 
-## 1.2  Why we mirror Nike's Android automation
+## 1.2  Why we mirror the reference suite's Android automation
 
-Nike's Android automation is built on **UITestBase.kt + RuleChain**:
+The reference suite's Android automation is built on **UITestBase.kt + RuleChain**:
 
 ```
 UITestBase.kt
@@ -51,7 +51,7 @@ Every test extends `UITestBase`, inherits the rule chain, and gets a set of
 **Playwright doesn't have JUnit `@Rule`,** but it has something equally
 powerful: **fixtures**. A fixture is a bit of setup/teardown code the test
 runner wires into every test. We compose fixtures in the exact same order
-as Nike's RuleChain so the mental model carries over 1:1.
+as the reference suite's RuleChain so the mental model carries over 1:1.
 
 The payoff is huge in an interview:
 - *"Here's `UITestBase.ts` — same filename, same job, same ordering as the
@@ -73,10 +73,10 @@ playwright-demo-framework/
 │       └── response-stub.spec.ts
 │
 ├── src/
-│   ├── testSteps/                  ← One folder PER feature area (= Nike pattern)
+│   ├── testSteps/                  ← One folder PER feature area (= reference pattern)
 │   │   ├── base/
-│   │   │   ├── UITestBase.ts       ← Our fixture composition (= Nike UITestBase.kt)
-│   │   │   └── rules/              ← Each rule mirrors a Nike @Rule
+│   │   │   ├── UITestBase.ts       ← Our fixture composition (= reference UITestBase.kt)
+│   │   │   └── rules/              ← Each rule mirrors a reference @Rule
 │   │   │       ├── UncaughtExceptionRule.ts
 │   │   │       ├── TestWatcherRule.ts
 │   │   │       ├── DisabledTestRule.ts
@@ -86,7 +86,7 @@ playwright-demo-framework/
 │   │   │       └── RetryTestRule.ts
 │   │   │
 │   │   ├── login/                  ← Feature area "Login"
-│   │   │   ├── LoginSteps.ts       ← Page object = Nike LoginSteps.kt
+│   │   │   ├── LoginSteps.ts       ← Page object = reference LoginSteps.kt
 │   │   │   ├── P1LoginTests.spec.ts   ← Smoke priority
 │   │   │   └── P2LoginTests.spec.ts   ← Regression priority
 │   │   │
@@ -104,10 +104,10 @@ playwright-demo-framework/
 │   │   ├── preReceipt/
 │   │   └── userLocaleConfiguration/
 │   │
-│   ├── testSuites/                 ← Logical grouping (optional, like Nike's suites)
+│   ├── testSuites/                 ← Logical grouping (optional, like the reference suite's suites)
 │   │   └── P1SmokeTestsSuite.ts
 │   │
-│   ├── resources/                  ← Test data + env + strings (= Nike resources/)
+│   ├── resources/                  ← Test data + env + strings (= reference resources/)
 │   │   ├── TestData.ts             ← Central test-data store
 │   │   ├── TestAccount.ts
 │   │   ├── AuthState.ts            ← Path constant for storageState file
@@ -116,7 +116,7 @@ playwright-demo-framework/
 │   ├── utils/
 │   │   ├── annotations/            ← @Description, @Documentation (metadata helpers)
 │   │   ├── api/
-│   │   │   ├── clients/            ← REST clients (= Nike utils/api/clients/)
+│   │   │   ├── clients/            ← REST clients (= reference utils/api/clients/)
 │   │   │   ├── interfaces/
 │   │   │   └── models/
 │   │   ├── helpers/
@@ -147,8 +147,8 @@ playwright-demo-framework/
 
 > *"Every feature area is its own folder with a `Steps` class and
 > a `P1Tests` + `P2Tests` spec file — exactly the three-file-per-area
-> pattern Nike's Android team uses. The base class is one TypeScript file
-> composing fixtures in the same order as Nike's RuleChain."*
+> pattern the reference suite's Android team uses. The base class is one TypeScript file
+> composing fixtures in the same order as the reference suite's RuleChain."*
 
 ## 1.4  The RuleChain analogy — how UITestBase.ts actually works
 
@@ -168,7 +168,7 @@ In plain English, this is what happens when any spec runs:
 4. **`setRegion()`** → sets locale/timezone to match the active project.
 5. **Hands the `page` to the test.**
 6. **After the test:** `TestWatcherRule` runs, grabbing extra screenshots on
-   failure (mirrors Nike's `ScreenshotTaker.kt`).
+   failure (mirrors the reference suite's `ScreenshotTaker.kt`).
 
 Every page-object class (`LoginSteps`, `CheckoutSteps`, …) is also exposed
 as a fixture so tests can just destructure them:
@@ -182,7 +182,7 @@ test('P1 | CHECKOUT | happy path', async ({ checkoutSteps, profileSteps }) => {
 ```
 
 That syntax is doing exactly what `protected val checkoutSteps = CheckoutSteps(composeTestRule)`
-does in Nike's Kotlin world — making each `Steps` instance available by
+does in the reference suite's Kotlin world — making each `Steps` instance available by
 name inside the test body.
 
 ## 1.5  How a single test runs — the lifecycle
@@ -1295,7 +1295,7 @@ npm run allure:generate && npm run allure:open
 ## Appendix — the 60-second "tell me about your project" script
 
 > *"I built a Playwright + TypeScript framework whose structure mirrors
-> the Nike App Android automation — same `testSteps/<area>/{Steps, P1Tests,
+> a prior enterprise Android automation suite — same `testSteps/<area>/{Steps, P1Tests,
 > P2Tests}` layout, same `UITestBase` + rule chain, same separation
 > between resources, utils, and feature specs. It runs against
 > `automationexercise.com`, sharded across a 4-project matrix in GitHub

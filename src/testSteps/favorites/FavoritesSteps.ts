@@ -1,6 +1,6 @@
 //
 //  FavoritesSteps.ts
-//  = Nike FavoritesSteps.kt
+//  = reference FavoritesSteps.kt
 //
 //  automationexercise.com has no real wishlist, but it does expose a very
 //  similar pattern: the "Brands" sidebar lets you drill into a branded gridwall

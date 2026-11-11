@@ -1,12 +1,12 @@
 //
 //  UserLocaleConfigurationSteps.ts
-//  = Nike UserLocaleConfigurationSteps.kt
+//  = reference UserLocaleConfigurationSteps.kt
 //
 //  Reads the browser context's active locale and asserts it matches the active
 //  Playwright project. Also inspects outgoing request headers to confirm the
 //  AUT at least sees the Accept-Language header we sent.
 //
-//  This is the Playwright equivalent of Nike's region/locale assertion helpers.
+//  This is the Playwright equivalent of the reference suite's region/locale assertion helpers.
 //
 
 import { expect, type Page } from '@playwright/test';

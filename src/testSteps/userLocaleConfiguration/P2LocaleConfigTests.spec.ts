@@ -1,6 +1,6 @@
 //
 //  P2LocaleConfigTests.spec.ts   (placeholder — populated in Evening 2)
-//  = Nike P2LocaleConfigTests.kt
+//  = reference P2LocaleConfigTests.kt
 //
 import { test } from '../base/UITestBase';
 

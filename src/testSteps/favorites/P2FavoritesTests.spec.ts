@@ -1,6 +1,6 @@
 //
 //  P2FavoritesTests.spec.ts   (placeholder — populated in Evening 2)
-//  = Nike P2FavoritesTests.kt
+//  = reference P2FavoritesTests.kt
 //
 import { test } from '../base/UITestBase';
 

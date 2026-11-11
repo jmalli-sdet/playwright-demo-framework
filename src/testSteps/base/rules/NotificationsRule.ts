@@ -3,7 +3,7 @@
 //  = UrbanAirshipNotificationsRule.kt
 //
 //  Grant/deny browser permissions up-front so permission prompts never
-//  interrupt a test. Nike's rule dismisses push-notification prompts on Android.
+//  interrupt a test. the reference suite's rule dismisses push-notification prompts on Android.
 //
 
 import type { BrowserContext } from '@playwright/test';

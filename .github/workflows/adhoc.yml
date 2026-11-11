@@ -1,11 +1,11 @@
-# ≈ Nike Jenkinsfile-android-qe-coverage-trigger.groovy
+# ≈ Reference Jenkinsfile-android-qe-coverage-trigger.groovy
 #
 # Ad-hoc coverage run
 #   - Manual trigger from the Actions tab.
-#   - Lets anyone pick a grep expression, a project, and a shard count —
+#   - Lets anyone pick a grep expression, a project, and a shard count â
 #     useful for pre-merge impact runs and for reproducing a CI flake locally.
 #
-name: Ad-hoc • Coverage
+name: Ad-hoc â¢ Coverage
 
 on:
   workflow_dispatch:

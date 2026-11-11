@@ -1,6 +1,6 @@
 //
 //  SafeZoneHelper.ts   (placeholder — populated in Evening 2/3)
-//  = Nike SafeZoneHelper.kt
+//  = reference SafeZoneHelper.kt
 //
 //  Viewport-safe tapping on mobile emulation.
 //
