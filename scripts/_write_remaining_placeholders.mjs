@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /* Writes the remaining reference-mirrored structural placeholders. */
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = path.resolve(import.meta.dirname, '..');
 const w = (rel, body) => {
     const p = path.join(ROOT, rel);
     fs.mkdirSync(path.dirname(p), { recursive: true });

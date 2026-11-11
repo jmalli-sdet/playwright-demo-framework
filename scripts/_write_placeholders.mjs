@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /* Generates feature-folder placeholders so the reference-mirrored tree is visible from day 1. */
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = path.resolve(import.meta.dirname, '..');
 
 const FEATURES = [
     ['onboarding',              'OnboardingSteps',              'Onboarding'],
