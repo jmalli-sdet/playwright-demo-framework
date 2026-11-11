@@ -16,6 +16,7 @@
 import { test as setup, expect } from '@playwright/test';
 import { P1_DEMO_ACCOUNT } from '../src/resources/TestData';
 import { AUTH_STATE_FILE } from '../src/resources/AuthState';
+import { SutAvailabilityHelper } from '../src/utils/helpers/SutAvailabilityHelper';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -26,7 +27,19 @@ setup('@setup @P1 @P2 @smoke @regression authenticate as P1 user and persist sto
     async ({ page }) => {
     fs.mkdirSync(path.dirname(AUTH_STATE_FILE), { recursive: true });
 
-    await page.goto('/login');
+    // automationexercise.com periodically enables Cloudflare under-attack mode
+    // and serves a `<title>One moment, please…</title>` interstitial instead of
+    // the real /login HTML. In that state `getByTestId('login-email')` simply
+    // times out — producing a misleading "element not found" that looks like a
+    // broken selector. `gotoWithChallengeRetry` detects the interstitial and
+    // either backs off + retries, or fails fast with a labeled SUT-unavailable
+    // error so the operator knows it's upstream, not us.
+    await SutAvailabilityHelper.gotoWithChallengeRetry(page, '/login', {
+        attempts: 4,
+        initialBackoffMs: 2_000,
+        waitForSelector: '[data-qa="login-email"]',
+        label: 'auth.setup → /login',
+    });
 
     await page.getByTestId('login-email').fill(P1_DEMO_ACCOUNT.email);
     await page.getByTestId('login-password').fill(P1_DEMO_ACCOUNT.password);
