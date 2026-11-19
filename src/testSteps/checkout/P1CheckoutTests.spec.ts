@@ -22,8 +22,14 @@ test.describe('Checkout — P1 Smoke', { tag: ['@P1', '@smoke', '@checkout'] }, 
             );
 
             // Sanity: storageState is active → we are logged in.
+            // Use ensureLoggedInAs (not verifyLoggedInAs) so that if a parallel
+            // CI worker rotated the shared demo-account session out from under
+            // us — or if the AUT served the "queue full" interstitial on / —
+            // we self-heal via one UI re-login instead of hard-failing. Same
+            // pattern P1ProfileTests already uses.
+            const p1 = testData.getP1User();
             await profileSteps.goToHome();
-            await profileSteps.verifyLoggedInAs('JM Demo P1');
+            await profileSteps.ensureLoggedInAs(p1.name, { email: p1.email, password: p1.password });
 
             // 1. Add a product to the cart
             await productDisplaySteps.openPdpById(1);

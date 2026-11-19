@@ -54,6 +54,10 @@ jobs:
       - name: Run P1 smoke
         env:
           PLAYWRIGHT_BLOB: '1'
+          # Per-shard P1 demo account — see src/resources/TestData.ts +
+          # .github/workflows/nightly.yml for the rationale.
+          MATRIX_PROJECT: chromium-en-US
+          MATRIX_SHARD: ${{ matrix.shard }}
         run: npx playwright test
              --project=chromium-en-US
              --grep @P1

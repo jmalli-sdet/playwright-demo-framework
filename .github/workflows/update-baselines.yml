@@ -57,17 +57,27 @@ jobs:
       - name: Regenerate baselines for every project
         run: |
           set +e
+          failed_projects=()
           for project in chromium-en-US webkit-en-US chromium-fr-FR mobile-chrome-pixel7; do
             echo "::group::$project"
             npx playwright test \
               --grep "${{ inputs.grep }}" \
               --project="$project" \
               --update-snapshots
+            status=$?
             echo "::endgroup::"
+            if [ $status -ne 0 ]; then
+              failed_projects+=("$project")
+              echo "::warning::$project did not fully regenerate baselines (exit $status) — check the grouped logs above."
+            fi
           done
-          # --update-snapshots exits 0 when baselines are written/updated, so
-          # any non-zero here is a real failure (compile error, network, etc.)
-          # We continue regardless; the commit step will no-op if nothing changed.
+          # --update-snapshots exits 0 when baselines are written/updated, so a
+          # non-zero exit means a real failure (compile error, SUT down, setup
+          # project couldn't log in, etc.). We continue regardless; the commit
+          # step below will exit 0 cleanly when no *-snapshots/ dirs exist.
+          if [ ${#failed_projects[@]} -ne 0 ]; then
+            echo "::warning::Projects that failed to regenerate: ${failed_projects[*]}"
+          fi
           exit 0
 
       - name: Upload generated baselines (always, for inspection)
@@ -81,12 +91,33 @@ jobs:
 
       - name: Commit updated baselines
         run: |
+          set -e
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A -- '**/*-snapshots/'
-          if git diff --cached --quiet; then
-            echo "No baseline changes to commit."
+
+          # Collect every *-snapshots/ directory that actually exists on disk.
+          # Using `find` (not a bash/git glob) so that a zero-match case produces
+          # an empty list — not a fatal "pathspec did not match any files" from
+          # `git add`.
+          mapfile -t snapshot_dirs < <(find . -type d -name '*-snapshots' \
+            -not -path './node_modules/*' \
+            -not -path './.git/*' \
+            -not -path './test-results/*' \
+            -not -path './playwright-report/*')
+
+          if [ ${#snapshot_dirs[@]} -eq 0 ]; then
+            echo "::warning::No *-snapshots/ directories were produced by --update-snapshots."
+            echo "::warning::This usually means the @visual tests never executed (e.g. the 'setup' project failed to log in, or the SUT returned a bot-challenge page). Inspect the 'Regenerate baselines' step logs above."
+            echo "Nothing to commit — exiting cleanly."
             exit 0
           fi
+
+          git add -A -- "${snapshot_dirs[@]}"
+
+          if git diff --cached --quiet; then
+            echo "Snapshot directories exist but contain no changes — nothing to commit."
+            exit 0
+          fi
+
           git commit -m "ci: refresh visual baselines (${{ inputs.grep }})"
           git push origin HEAD:${{ inputs.branch }}
