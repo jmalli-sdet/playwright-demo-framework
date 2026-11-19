@@ -43,20 +43,48 @@ export const CHALLENGE_BODY_PATTERNS: readonly RegExp[] = [
     /cf_chl_opt/i,
 ];
 
+/**
+ * Body fingerprints for automationexercise.com's "queue full / under heavy load"
+ * interstitial. Unlike the Cloudflare page, this one has NO `<title>` — it is a
+ * bare `<body>` with an `<h2>This website is under heavy load (queue full)</h2>`
+ * block — so title-based detection misses it entirely. Match on body text
+ * instead, applied to the raw HTML returned by `page.content()`.
+ */
+export const HEAVY_LOAD_BODY_PATTERNS: readonly RegExp[] = [
+    /under heavy load/i,
+    /queue full/i,
+    /too many people are accessing this website/i,
+];
+
 export interface GotoWithChallengeRetryOptions {
-    /** How many total navigation attempts before giving up. Default 4. */
+    /** How many total navigation attempts before giving up. See `SutAvailabilityHelper.DEFAULT_GOTO_ATTEMPTS`. */
     attempts?: number;
-    /** First backoff in ms; doubled each attempt, capped at 15 s. Default 2000. */
+    /** First backoff in ms; doubled each attempt, capped at `BACKOFF_CEILING_MS`. See `DEFAULT_GOTO_INITIAL_BACKOFF_MS`. */
     initialBackoffMs?: number;
     /** Optional selector that MUST appear for the page to count as "real". */
     waitForSelector?: string;
-    /** Per-selector wait timeout in ms. Default 10_000. */
+    /** Per-selector wait timeout in ms. See `SutAvailabilityHelper.DEFAULT_SELECTOR_TIMEOUT_MS`. */
     waitForSelectorTimeoutMs?: number;
     /** Human-readable label used in log + error messages. */
     label?: string;
 }
 
 export class SutAvailabilityHelper {
+
+    // ─── Companion-object–style constants ──────────────────────────────────────
+    // Direct TypeScript analogue of Kotlin's
+    //     private companion object { const val NAME = value }
+    // All default timeout / retry knobs for the public methods live here so
+    // callers tune them in one place instead of scanning method bodies for
+    // scattered magic numbers. Same pattern used by ProfileSteps.
+    private static readonly DEFAULT_GOTO_ATTEMPTS              = 4;
+    private static readonly DEFAULT_GOTO_INITIAL_BACKOFF_MS    = 2_000;
+    private static readonly DEFAULT_SELECTOR_TIMEOUT_MS        = 10_000;
+    private static readonly DEFAULT_RECOVER_ATTEMPTS           = 4;
+    private static readonly DEFAULT_RECOVER_INITIAL_BACKOFF_MS = 2_000;
+    private static readonly RECOVER_RELOAD_TIMEOUT_MS          = 30_000;
+    /** Exponential-backoff ceiling shared by both retry loops. */
+    private static readonly BACKOFF_CEILING_MS                 = 15_000;
 
     /**
      * Returns `true` when the current page looks like a Cloudflare/bot
@@ -82,6 +110,89 @@ export class SutAvailabilityHelper {
     }
 
     /**
+     * Returns `true` when the page body indicates the AUT is serving its
+     * "under heavy load / queue full" interstitial. Uses raw HTML (not title)
+     * because that interstitial has no `<title>` — a title-only check would
+     * false-negative and burn the full locator timeout.
+     */
+    static async isHeavyLoadPage(page: Page): Promise<boolean> {
+        try {
+            const html = await page.content();
+            return HEAVY_LOAD_BODY_PATTERNS.some((rx) => rx.test(html));
+        } catch {
+            return false;
+        }
+    }
+
+    /**
+     * Returns `true` when the page looks like EITHER a Cloudflare challenge OR
+     * the AUT's "queue full" overflow page. This is the detection the retry
+     * helpers below gate on — callers should prefer it over the individual
+     * `isChallengePage` / `isHeavyLoadPage` methods.
+     */
+    static async isInterstitial(page: Page): Promise<boolean> {
+        if (await SutAvailabilityHelper.isChallengePage(page)) return true;
+        if (await SutAvailabilityHelper.isHeavyLoadPage(page)) return true;
+        return false;
+    }
+
+    /**
+     * If the current page is an interstitial (Cloudflare or heavy-load),
+     * `page.reload()` up to `attempts` times with exponential backoff until a
+     * real page comes back. Returns `true` when a reload recovered the page
+     * (or `false` when no interstitial was present to begin with).
+     *
+     * ⚠️  Only safe to call on GET endpoints — a reload after a POST
+     * submission would re-submit the form. Call this AFTER any post-redirect
+     * has landed on its final GET URL (e.g. `/payment_done` after the payment
+     * POST completes), never immediately after clicking a form submit button.
+     *
+     * Throws on final failure so the error surfaces as "SUT unavailable" and
+     * not as a confusing downstream "element not found".
+     */
+    static async recoverIfInterstitial(
+        page: Page,
+        opts: { label?: string; attempts?: number; initialBackoffMs?: number } = {},
+    ): Promise<boolean> {
+        const attempts = opts.attempts ?? SutAvailabilityHelper.DEFAULT_RECOVER_ATTEMPTS;
+        const label = opts.label ?? page.url();
+        let backoff = opts.initialBackoffMs ?? SutAvailabilityHelper.DEFAULT_RECOVER_INITIAL_BACKOFF_MS;
+
+        if (!(await SutAvailabilityHelper.isInterstitial(page))) return false;
+
+        for (let i = 1; i <= attempts; i++) {
+            console.warn(
+                `[sut] ${label}: interstitial detected on attempt ${i}/${attempts}. ` +
+                `Waiting ${backoff}ms before reloading…`,
+            );
+            await page.waitForTimeout(backoff);
+            try {
+                await page.reload({
+                    waitUntil: 'domcontentloaded',
+                    timeout: SutAvailabilityHelper.RECOVER_RELOAD_TIMEOUT_MS,
+                });
+            } catch (err) {
+                console.warn(
+                    `[sut] ${label}: reload failed on attempt ${i}: ` +
+                    `${(err as Error).message.split('\n')[0]}`,
+                );
+            }
+            if (!(await SutAvailabilityHelper.isInterstitial(page))) {
+                console.log(`[sut] ${label}: interstitial cleared after ${i} reload(s).`);
+                return true;
+            }
+            backoff = Math.min(backoff * 2, SutAvailabilityHelper.BACKOFF_CEILING_MS);
+        }
+
+        throw new Error(
+            `SUT unavailable (interstitial) — ${label} kept returning the ` +
+            `"under heavy load / Cloudflare challenge" page after ${attempts} reload(s). ` +
+            `This is an upstream issue with automationexercise.com; retry when the ` +
+            `site drops out of overflow/under-attack mode.`,
+        );
+    }
+
+    /**
      * Navigate to `path` with up to N retries whenever the SUT serves a
      * challenge interstitial. On final failure throws a labeled
      * `SUT unavailable (Cloudflare bot challenge)` error so the Actions log
@@ -92,21 +203,24 @@ export class SutAvailabilityHelper {
         path: string,
         opts: GotoWithChallengeRetryOptions = {},
     ): Promise<void> {
-        const attempts = opts.attempts ?? 4;
+        const attempts = opts.attempts ?? SutAvailabilityHelper.DEFAULT_GOTO_ATTEMPTS;
         const label = opts.label ?? path;
-        const selectorTimeout = opts.waitForSelectorTimeoutMs ?? 10_000;
-        let backoff = opts.initialBackoffMs ?? 2_000;
+        const selectorTimeout = opts.waitForSelectorTimeoutMs ?? SutAvailabilityHelper.DEFAULT_SELECTOR_TIMEOUT_MS;
+        let backoff = opts.initialBackoffMs ?? SutAvailabilityHelper.DEFAULT_GOTO_INITIAL_BACKOFF_MS;
 
         for (let i = 1; i <= attempts; i++) {
             await page.goto(path);
 
-            if (await SutAvailabilityHelper.isChallengePage(page)) {
+            // Detect Cloudflare "One moment, please…" AND the AUT's
+            // "under heavy load (queue full)" interstitial — the latter has
+            // no <title> so title-only detection was missing it in CI.
+            if (await SutAvailabilityHelper.isInterstitial(page)) {
                 console.warn(
-                    `[sut] ${label}: Cloudflare challenge on attempt ${i}/${attempts}. ` +
+                    `[sut] ${label}: interstitial on attempt ${i}/${attempts}. ` +
                     `Backing off ${backoff}ms before retrying…`,
                 );
                 await page.waitForTimeout(backoff);
-                backoff = Math.min(backoff * 2, 15_000);
+                backoff = Math.min(backoff * 2, SutAvailabilityHelper.BACKOFF_CEILING_MS);
                 continue;
             }
 
@@ -120,7 +234,7 @@ export class SutAvailabilityHelper {
                         `attempt ${i}/${attempts}; backing off ${backoff}ms and retrying.`,
                     );
                     await page.waitForTimeout(backoff);
-                    backoff = Math.min(backoff * 2, 15_000);
+                    backoff = Math.min(backoff * 2, SutAvailabilityHelper.BACKOFF_CEILING_MS);
                     continue;
                 }
             }
@@ -129,10 +243,10 @@ export class SutAvailabilityHelper {
         }
 
         throw new Error(
-            `SUT unavailable (Cloudflare bot challenge) — ${label} returned the ` +
-            `"One moment, please…" interstitial on all ${attempts} attempts. ` +
-            `This is an upstream issue with automationexercise.com; retry when the ` +
-            `site drops out of under-attack mode, or run the workflow after waiting.`,
+            `SUT unavailable (interstitial) — ${label} returned a Cloudflare ` +
+            `"One moment, please…" or "under heavy load (queue full)" page on all ` +
+            `${attempts} attempts. This is an upstream issue with automationexercise.com; ` +
+            `retry when the site drops out of under-attack / overflow mode.`,
         );
     }
 }
