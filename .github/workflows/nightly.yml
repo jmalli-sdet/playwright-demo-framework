@@ -50,6 +50,11 @@ jobs:
         env:
           PLAYWRIGHT_BLOB: '1'
           ALLURE: '1'
+          # Make each shard own a unique P1 demo account so the 12 parallel
+          # global.setup.ts runs can't race on delete/create for the same
+          # email on automationexercise.com (see src/resources/TestData.ts).
+          MATRIX_PROJECT: ${{ matrix.project }}
+          MATRIX_SHARD: ${{ matrix.shard }}
         run: npx playwright test
              --grep @P2
              --project=${{ matrix.project }}

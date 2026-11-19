@@ -49,6 +49,10 @@ jobs:
         env:
           PLAYWRIGHT_BLOB: '1'
           ALLURE: '1'
+          # Per-shard P1 demo account — see src/resources/TestData.ts +
+          # .github/workflows/nightly.yml for the rationale.
+          MATRIX_PROJECT: ${{ matrix.project }}
+          MATRIX_SHARD: ${{ matrix.shard }}
         run: npx playwright test
              --project=${{ matrix.project }}
              --shard=${{ matrix.shard }}/4
